@@ -150,13 +150,12 @@ class SecureRandom
         }
 
         $this->setBuffer($count === 0 ? 0 : $this->countBytesNeeded($size - 1, $size - $count));
-
-        $keys = array_keys($array);
         $result = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $key = array_splice($keys, $this->getBufferedInt($size - $i - 1), 1)[0];
-            $result[$key] = $array[$key];
+            $element = array_slice($array, $this->getBufferedInt($size - $i - 1), 1, true);
+            $result += $element;
+            unset($array[key($element)]);
         }
 
         return $result;
@@ -174,7 +173,7 @@ class SecureRandom
             throw new \InvalidArgumentException('Array must have at least one value');
         }
 
-        return array_values($array)[$this->getInteger(0, count($array) - 1)];
+        return current(array_slice($array, $this->getInteger(0, count($array) - 1), 1));
     }
 
     /**
