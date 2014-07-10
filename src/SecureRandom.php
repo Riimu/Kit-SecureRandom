@@ -43,9 +43,9 @@ class SecureRandom
      * the constructor will attempt to create the random byte generators in the
      * following order until it finds one that is supported:
      *
-     *  - RandomReader
-     *  - Mcrypt
-     *  - OpenSSL
+     * - RandomReader
+     * - Mcrypt
+     * - OpenSSL
      *
      * Note that since most cases require non-blocking random generation, the
      * default generators use /dev/urandom as the random source. If you do not

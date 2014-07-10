@@ -22,7 +22,7 @@ class RandomReader implements Generator
 
     /**
      * Creates new instance of RandomReader.
-     * @param bool $urandom True to read from /dev/urandom, false to read from /dev/urandom
+     * @param bool $urandom True to read from /dev/urandom, false to read from /dev/random
      */
     public function __construct($urandom = true)
     {
