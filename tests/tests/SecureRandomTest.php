@@ -57,7 +57,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     {
         $rng = $this->createWithList();
         $this->setExpectedException('\InvalidArgumentException');
-        $rng->getInteger(0, PHP_INT_MAX * 2 * 2);
+        $rng->getInteger(0, PHP_INT_MAX + 1);
     }
 
     public function testSameMinimumAndMaximum()
@@ -156,9 +156,9 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testGetFloat()
     {
         $rng = $this->createWithList([[PHP_INT_SIZE, 9090], [PHP_INT_SIZE, 0], [PHP_INT_SIZE, PHP_INT_MAX]]);
-        $this->assertSame(9090 / PHP_INT_MAX, $rng->getFloat());
-        $this->assertSame(0.0, $rng->getFloat());
-        $this->assertSame(1.0, $rng->getFloat());
+        $this->assertTrue(9090 / PHP_INT_MAX === $rng->getFloat());
+        $this->assertTrue(0.0 === $rng->getFloat());
+        $this->assertTrue(1.0 === $rng->getFloat());
     }
 
     public function testGetArray()

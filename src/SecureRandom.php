@@ -281,7 +281,7 @@ class SecureRandom
         }
 
         $bytes = (int) ceil($bits / 8);
-        $mask = (int) ((1 << $bits) - 1);
+        $mask = $bits === PHP_INT_SIZE * 8 - 1 ? PHP_INT_MAX : (1 << $bits) - 1;
 
         do {
             if (strlen($this->buffer) < $bytes) {
