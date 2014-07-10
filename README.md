@@ -50,6 +50,7 @@ Usage of the library is very simple. Simply create an instance of the
 `SecureRandom` and call any of the methods to get random values. For example:
 
 ```php
+<?php
 $rng = new \Riimu\Kit\SecureRandom\SecureRandom();
 
 var_dump(base64_encode($rng->getBytes(32)));     // Returns a random byte string

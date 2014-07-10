@@ -5,7 +5,7 @@ namespace Riimu\Kit\SecureRandom\Generator;
 /**
  * Generates bytes reading directly from random device.
  *
- * RandomReader genrator creates bytes by reading directly from either
+ * RandomReader generator creates bytes by reading directly from either
  * /dev/urandom or /dev/random.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>

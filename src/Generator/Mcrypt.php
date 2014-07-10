@@ -23,7 +23,7 @@ class Mcrypt implements Generator
     private $mode;
 
     /**
-     * Creates new insteance of Mcrypt generator.
+     * Creates new instance of Mcrypt generator.
      * @param bool $urandom True to use /dev/urandom and false for /dev/random
      */
     public function __construct($urandom = true)

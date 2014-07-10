@@ -1,7 +1,6 @@
 <?php
 
 namespace Riimu\Kit\SecureRandom;
-use Riimu\Kit\SecureRandom\Generator;
 
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
