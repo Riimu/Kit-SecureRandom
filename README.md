@@ -21,6 +21,9 @@ The idea is to simply provide a simple interface for different secure random
 generators to make it easier to provide support for different kinds of
 platforms.
 
+API documentation is [available](http://kit.riimu.net/api/securerandom/) and it
+can be generated using ApiGen.
+
 [![Build Status](https://travis-ci.org/Riimu/Kit-SecureRandom.svg?branch=master)](https://travis-ci.org/Riimu/Kit-SecureRandom)
 [![Coverage Status](https://coveralls.io/repos/Riimu/Kit-SecureRandom/badge.png)](https://coveralls.io/r/Riimu/Kit-SecureRandom)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/?branch=master)
