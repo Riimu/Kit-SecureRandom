@@ -1,0 +1,25 @@
+{
+    "name": "riimu/kit-securerandom",
+    "type": "library",
+    "description": "Library for leveraging available secure random generators.",
+    "keywords": ["security", "random"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Riikka Kalliomäki",
+            "email": "riikka.kalliomaki@gmail.com",
+            "homepage": "http://riimu.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-openssl": "*",
+        "ext-mcrypt" : "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Riimu\\Kit\\SecureRandom\\": "src/"
+        }
+    }
+}
