@@ -232,20 +232,20 @@ class SecureRandom
 
     /**
      * Counts the number of bytes needed to represent numbers.
-     * @param integer $m Largest number to represent
-     * @param integer $n Smallest number to represent
+     * @param integer $largest Largest number to represent
+     * @param integer $smallest Smallest number to represent
      * @return integer The number of bytes needed
      */
-    function countBytesNeeded($m, $n)
+    private function countBytesNeeded($largest, $smallest)
     {
-        $count = $m - $n + 1;
+        $count = $largest - $smallest + 1;
         $bytes = 0;
 
-        for ($i = (int) (floor(log($m, 256)) + 1), $total = 0; $total < $count; $i--) {
+        for ($i = (int) (floor(log($largest, 256)) + 1), $total = 0; $total < $count; $i--) {
             $max = $i === PHP_INT_SIZE ? PHP_INT_MAX : (1 << ($i * 8)) - 1;
             $min = $i === 1 ? -1 : (1 << (($i - 1) * 8)) - 1;
 
-            $numbers = min($count - $total, $m - $min, $max - $min);
+            $numbers = min($count - $total, $largest - $min, $max - $min);
             $total += $numbers;
             $bytes += $i * $numbers;
         }

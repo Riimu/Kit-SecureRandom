@@ -54,9 +54,5 @@ class GeneratorsTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertSame(1, strlen($generator->getBytes(1)));
-        $this->assertSame(16, strlen($generator->getBytes(16)));
-        $this->assertSame(32, strlen($generator->getBytes(32)));
-        $this->assertSame(256, strlen($generator->getBytes(256)));
-        $this->assertSame(1024, strlen($generator->getBytes(1024)));
     }
 }
