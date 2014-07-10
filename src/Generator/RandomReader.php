@@ -36,6 +36,6 @@ class RandomReader implements Generator
 
     public function getBytes($count)
     {
-        return file_get_contents($this->source, null, null, -1, $count);
+        return file_get_contents($this->source, false, null, -1, $count);
     }
 }

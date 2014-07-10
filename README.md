@@ -21,6 +21,9 @@ The idea is to simply provide a simple interface for different secure random
 generators to make it easier to provide support for different kinds of
 platforms.
 
+[![Coverage Status](https://coveralls.io/repos/Riimu/Kit-SecureRandom/badge.png)](https://coveralls.io/r/Riimu/Kit-SecureRandom)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/?branch=master)
+
 ## Installation ##
 
 This library can be easily installed using [Composer](http://getcomposer.org/)
