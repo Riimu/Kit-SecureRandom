@@ -15,14 +15,14 @@ use Riimu\Kit\SecureRandom\GeneratorException;
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class OpenSSL implements Generator
+class OpenSSL extends AbstractGenerator
 {
     public function isSupported()
     {
         return function_exists('openssl_random_pseudo_bytes');
     }
 
-    public function getBytes($count)
+    protected function readBytes($count)
     {
         $bytes = openssl_random_pseudo_bytes($count, $strong);
 

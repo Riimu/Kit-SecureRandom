@@ -84,7 +84,7 @@ class SecureRandom
             return '';
         }
 
-        return $this->readBytes($count);
+        return $this->generator->getBytes($count);
     }
 
     /**
@@ -114,7 +114,7 @@ class SecureRandom
         $bytes = (int) ceil($bits / 8);
 
         do {
-            $result = hexdec(bin2hex($this->readBytes($bytes))) & $mask;
+            $result = hexdec(bin2hex($this->generator->getBytes($bytes))) & $mask;
         } while ($result > $diff);
 
         return $min + $result;
@@ -227,22 +227,5 @@ class SecureRandom
         }
 
         return is_array($choices) ? $result : implode('', $result);
-    }
-
-    /**
-     * Reads bytes from the bytes generator.
-     * @param integer $count Number of bytes to read
-     * @return string The bytes read from the byte generator
-     * @throws GeneratorException If the generator returns wrong number of bytes
-     */
-    private function readBytes($count)
-    {
-        $bytes = $this->generator->getBytes($count);
-
-        if (strlen($bytes) !== $count) {
-            throw new GeneratorException('Generator returned invalid number of bytes');
-        }
-
-        return $bytes;
     }
 }

@@ -14,7 +14,7 @@ namespace Riimu\Kit\SecureRandom\Generator;
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class Mcrypt implements Generator
+class Mcrypt extends AbstractGenerator
 {
     /**
      * Random source for mcrypt_create_iv.
@@ -36,7 +36,7 @@ class Mcrypt implements Generator
         return function_exists('mcrypt_create_iv');
     }
 
-    public function getBytes($count)
+    protected function readBytes($count)
     {
         return mcrypt_create_iv($count, $this->mode);
     }

@@ -107,7 +107,7 @@ been seeded properly. However, this is typically not the case with web
 applications, since this tends to be issue only on system startup.
 
 If you know, that you absolutely need to read from `/dev/random` it's possible
-to set the `RandomReader` and `mcrypt` to use it instead by setting false as
+to set the `RandomReader` and `Mcrypt` to use it instead by setting false as
 their constructor argument and providing the generator to `SecureRandom` in the
 constructor. For example:
 

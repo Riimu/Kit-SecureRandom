@@ -28,9 +28,9 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testInvalidBytesOnRead()
     {
-        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\Generator');
+        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\AbstractGenerator', ['isSupported', 'readBytes']);
         $mock->expects($this->once())->method('isSupported')->will($this->returnValue(true));
-        $mock->expects($this->once())->method('getBytes')->will($this->returnValue('aa'));
+        $mock->expects($this->once())->method('readBytes')->will($this->returnValue('aa'));
         $rng = new SecureRandom($mock);
 
         $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');

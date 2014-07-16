@@ -12,7 +12,7 @@ namespace Riimu\Kit\SecureRandom\Generator;
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class RandomReader implements Generator
+class RandomReader extends AbstractGenerator
 {
     /**
      * Path to read from.
@@ -53,7 +53,7 @@ class RandomReader implements Generator
         return is_readable($this->source);
     }
 
-    public function getBytes($count)
+    protected function readBytes($count)
     {
         return fread($this->getPointer(), $count);
     }
