@@ -216,7 +216,7 @@ class SecureRandom
 
         if ($length < 0) {
             throw new \InvalidArgumentException('Sequence length must be at least 0');
-        } elseif ($count < 1) {
+        } elseif ($count < 1 && $length > 0) {
             throw new \InvalidArgumentException('Must have at least one value to choose from');
         }
 
@@ -240,7 +240,7 @@ class SecureRandom
         $bytes = $this->generator->getBytes($count);
 
         if (strlen($bytes) !== $count) {
-            throw new GeneratorException("Generator returned invalid number of bytes");
+            throw new GeneratorException('Generator returned invalid number of bytes');
         }
 
         return $bytes;

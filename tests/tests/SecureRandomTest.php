@@ -129,6 +129,13 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
         $rng->getSequence([], 1);
     }
 
+    public function testEmptySequenceFromNoChoices()
+    {
+        $rng = $this->createWithList();
+        $this->assertSame([], $rng->getSequence([], 0));
+        $this->assertSame('', $rng->getSequence('', 0));
+    }
+
     public function testOneChoiceSequence()
     {
         $rng = $this->createWithList();
