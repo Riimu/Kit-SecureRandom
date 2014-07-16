@@ -18,6 +18,7 @@ $height = 512;
 
 for ($y = 0; $y < $height; $y++) {
     for ($x = 0; $x < $width; $x++) {
+        //imagesetpixel($im, $rng->getInteger(0, $width - 1), $rng->getInteger(0, $height - 1), $white);
         if ($rng->getInteger(0, 1)) {
             imagesetpixel($im, $x, $y, $white);
         }

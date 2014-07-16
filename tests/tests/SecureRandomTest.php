@@ -26,6 +26,17 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
         new SecureRandom($mock);
     }
 
+    public function testInvalidBytesOnRead()
+    {
+        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\Generator');
+        $mock->expects($this->once())->method('isSupported')->will($this->returnValue(true));
+        $mock->expects($this->once())->method('getBytes')->will($this->returnValue('aa'));
+        $rng = new SecureRandom($mock);
+
+        $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
+        $rng->getBytes(1);
+    }
+
     public function testInvalidByteCount()
     {
         $rng = $this->createWithList();
@@ -163,7 +174,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testGetArray()
     {
-        $rng = $this->createWithList([2, 0x0101, 2, 0x0101]);
+        $rng = $this->createWithList([2, 1, 1, 2, 1, 1]);
         $this->assertSame(['c' => '2'], $rng->getArray([
             'a' => '0', 'b' => '1', 'c' => '2'
         ], 1));
@@ -176,14 +187,8 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testMinimalBytes()
     {
-        $rng = $this->createWithList([0x010080FF, 0x80]);
+        $rng = $this->createWithList([0x0100, 0x80, 0xFF, 0x80]);
         $this->assertSame([0x0100 => 0x0100, 0x80 => 0x80, 0x81 => 0x81], $rng->getArray(range(0, 256), 3));
-    }
-
-    public function testReadingWithNonEmptyBuffer()
-    {
-        $rng = $this->createWithList([0x010100, 0x9080]);
-        $this->assertSame([0x0090 => 0x0090, 0x80 => 0x80], $rng->getArray(range(0, 256), 2));
     }
 
     public function testChoose()
@@ -196,7 +201,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testShuffle()
     {
-        $rng = $this->createWithList([chr(0) . chr(1) . chr(0), chr(0) . chr(1) . chr(0)]);
+        $rng = $this->createWithList([0, 1, 0, 1]);
         $this->assertSame(
             ['a' => '0', 'c' => '2', 'b' => '1'],
             $rng->shuffle([
@@ -211,7 +216,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testSequence()
     {
-        $rng = $this->createWithList([chr(0) . chr(3) . chr(2) . chr(3) . chr(1)]);
+        $rng = $this->createWithList([0, 3, 2, 3, 1]);
         $this->assertSame('adcdb', $rng->getSequence('abcd', 5));
     }
 

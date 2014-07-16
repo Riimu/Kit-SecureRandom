@@ -2,6 +2,8 @@
 
 namespace Riimu\Kit\SecureRandom;
 
+use Riimu\Kit\SecureRandom\Generator\RandomReader;
+
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
@@ -12,6 +14,23 @@ class GeneratorsTest extends \PHPUnit_Framework_TestCase
     public function testRandomReader()
     {
         $this->assertGeneratorWorks(new Generator\RandomReader(true));
+    }
+
+    public function testRandomReaderShutdown()
+    {
+        $rng = new RandomReader();
+        if (!$rng->isSupported()) {
+            $this->markTestSkipped('/dev/urandom cannot be read');
+        }
+
+        $prop = (new \ReflectionClass($rng))->getProperty('pointer');
+        $prop->setAccessible(true);
+
+        $this->assertNull($prop->getValue($rng));
+        $rng->getBytes(1);
+        $this->assertNotNull($prop->getValue($rng));
+        $rng->__destruct();
+        $this->assertNull($prop->getValue($rng));
     }
 
     public function testBlockingRandomReader()

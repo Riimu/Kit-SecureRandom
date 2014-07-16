@@ -24,18 +24,6 @@ class SecureRandom
     private $generator;
 
     /**
-     * Buffered bytes for generating additional integers.
-     * @var string
-     */
-    private $buffer;
-
-    /**
-     * The number of usable bytes needed the be generated.
-     * @var integer
-     */
-    private $bytesNeeded;
-
-    /**
      * Creates a new instance of SecureRandom.
      *
      * You can either provide a generator to use for generating random bytes or
@@ -96,7 +84,7 @@ class SecureRandom
             return '';
         }
 
-        return $this->generator->getBytes($count);
+        return $this->readBytes($count);
     }
 
     /**
@@ -113,10 +101,23 @@ class SecureRandom
 
         if ($min < 0 || $max < $min) {
             throw new \InvalidArgumentException('Invalid minimum or maximum value');
+        } elseif ($min === $max) {
+            return $min;
         }
 
-        $this->setBuffer(floor(log($max - $min, 256)) + 1);
-        return $min + $this->getBufferedInt($max - $min);
+        $diff = $max - $min;
+
+        for ($bits = 1, $mask = 1; $diff >> $bits > 0; $bits++) {
+            $mask |= 1 << $bits;
+        }
+
+        $bytes = (int) ceil($bits / 8);
+
+        do {
+            $result = hexdec(bin2hex($this->readBytes($bytes))) & $mask;
+        } while ($result > $diff);
+
+        return $min + $result;
     }
 
     /**
@@ -149,11 +150,10 @@ class SecureRandom
             throw new \InvalidArgumentException('Invalid number of elements');
         }
 
-        $this->setBuffer($count === 0 ? 0 : $this->countBytesNeeded($size - 1, $size - $count));
         $result = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $element = array_slice($array, $this->getBufferedInt($size - $i - 1), 1, true);
+            $element = array_slice($array, $this->getInteger(0, $size - $i - 1), 1, true);
             $result += $element;
             unset($array[key($element)]);
         }
@@ -220,80 +220,29 @@ class SecureRandom
             throw new \InvalidArgumentException('Must have at least one value to choose from');
         }
 
-        $this->setBuffer((floor(log($count, 256)) + 1) * $length);
         $result = [];
 
         for ($i = 0; $i < $length; $i++) {
-            $result[] = $values[$this->getBufferedInt($count - 1)];
+            $result[] = $values[$this->getInteger(0, $count - 1)];
         }
 
         return is_array($choices) ? $result : implode('', $result);
     }
 
     /**
-     * Counts the number of bytes needed to represent numbers.
-     * @param integer $largest Largest number to represent
-     * @param integer $smallest Smallest number to represent
-     * @return integer The number of bytes needed
+     * Reads bytes from the bytes generator.
+     * @param integer $count Number of bytes to read
+     * @return string The bytes read from the byte generator
+     * @throws GeneratorException If the generator returns wrong number of bytes
      */
-    private function countBytesNeeded($largest, $smallest)
+    private function readBytes($count)
     {
-        $count = $largest - $smallest + 1;
-        $bytes = 0;
+        $bytes = $this->generator->getBytes($count);
 
-        for ($i = (int) (floor(log($largest, 256)) + 1), $total = 0; $total < $count; $i--) {
-            $max = $i === PHP_INT_SIZE ? PHP_INT_MAX : (1 << ($i * 8)) - 1;
-            $min = $i === 1 ? -1 : (1 << (($i - 1) * 8)) - 1;
-
-            $numbers = min($count - $total, $largest - $min, $max - $min);
-            $total += $numbers;
-            $bytes += $i * $numbers;
+        if (strlen($bytes) !== $count) {
+            throw new GeneratorException("Generator returned invalid number of bytes");
         }
 
         return $bytes;
-    }
-
-    /**
-     * Sets the number of bytes to buffer for further generated integers.
-     * @param integer $bytesNeeded The minimum number of bytes needed
-     */
-    private function setBuffer($bytesNeeded)
-    {
-        $this->buffer = '';
-        $this->bytesNeeded = (int) $bytesNeeded;
-    }
-
-    /**
-     * Returns a random integer between 0 and limit and buffers further reads.
-     * @param integer $limit Maximum number to return
-     * @return integer A random integer between 0 and limit
-     */
-    private function getBufferedInt($limit)
-    {
-        if ($limit === 0) {
-            return 0;
-        }
-
-        $bits = 1;
-
-        while (($limit >> $bits) > 0) {
-            $bits++;
-        }
-
-        $bytes = (int) ceil($bits / 8);
-        $mask = $bits === PHP_INT_SIZE * 8 - 1 ? PHP_INT_MAX : (1 << $bits) - 1;
-
-        do {
-            if (strlen($this->buffer) < $bytes) {
-                $this->buffer .= $this->generator->getBytes($this->bytesNeeded - strlen($this->buffer));
-            }
-
-            $result = hexdec(bin2hex(substr($this->buffer, 0, $bytes))) & $mask;
-            $this->buffer = substr($this->buffer, $bytes);
-        } while ($result > $limit);
-
-        $this->bytesNeeded -= $bytes;
-
-        return $result;
     }
 }
