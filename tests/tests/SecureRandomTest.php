@@ -9,6 +9,26 @@ namespace Riimu\Kit\SecureRandom;
  */
 class SecureRandomTest extends \PHPUnit_Framework_TestCase
 {
+    public function testEvenDistribution()
+    {
+        $count = 0;
+
+        $mock = $this->getMock('\Riimu\Kit\SecureRandom\Generator\Generator', ['getBytes', 'isSupported']);
+        $mock->expects($this->once())->method('isSupported')->will($this->returnValue(true));
+        $mock->expects($this->any())->method('getBytes')->with($this->equalTo(1))->will($this->returnCallback(function () use (& $count) {
+            return chr($count++ & 255);
+        }));
+
+        $random = new SecureRandom($mock);
+        $counts = array_fill(0, 18, 0);
+
+        for ($i = 0; $i < 20 * 18; $i++) {
+            $counts[$random->getInteger(0, 17)]++;
+        }
+
+        $this->assertSame(array_fill(0, 18, 20), $counts);
+    }
+
     public function testCreatingWithDefaultGenerator()
     {
         $rng = new SecureRandom();
@@ -24,6 +44,24 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
         new SecureRandom($mock);
+    }
+
+    public function testUnsupportedDefaultGenerators()
+    {
+        $list = new \ReflectionProperty('\Riimu\Kit\SecureRandom\SecureRandom', 'defaultGenerators');
+        $list->setAccessible(true);
+        $defaults = $list->getValue();
+        $list->setValue([]);
+        $exception = null;
+
+        try {
+            new SecureRandom();
+        } catch (\Exception $ex) {
+            $exception = $ex;
+        }
+
+        $list->setValue($defaults);
+        $this->assertInstanceOf('\Riimu\Kit\SecureRandom\GeneratorException', $exception);
     }
 
     public function testInvalidBytesOnRead()

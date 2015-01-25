@@ -17,11 +17,15 @@ use Riimu\Kit\SecureRandom\Generator\Generator;
  */
 class SecureRandom
 {
-    /**
-     * The random byte generator.
-     * @var Generator
-     */
+    /** @var Generator The secure random byte generator used to generate bytes */
     private $generator;
+
+    /** @var string[] List of default generators */
+    private static $defaultGenerators = [
+        '\Riimu\Kit\SecureRandom\Generator\RandomReader',
+        '\Riimu\Kit\SecureRandom\Generator\Mcrypt',
+        '\Riimu\Kit\SecureRandom\Generator\OpenSSL',
+    ];
 
     /**
      * Creates a new instance of SecureRandom.
@@ -45,27 +49,31 @@ class SecureRandom
      */
     public function __construct(Generator $generator = null)
     {
+        if ($generator === null) {
+            $generator = $this->getDefaultGenerator();
+        } elseif (!$generator->isSupported()) {
+            throw new GeneratorException('The provided secure random byte generator is not supported by the system');
+        }
+
         $this->generator = $generator;
+    }
 
-        if ($this->generator === null) {
-            $generators = [
-                '\Riimu\Kit\SecureRandom\Generator\RandomReader',
-                '\Riimu\Kit\SecureRandom\Generator\Mcrypt',
-                '\Riimu\Kit\SecureRandom\Generator\OpenSSL',
-            ];
+    /**
+     * Returns the first supported default secure random byte generator.
+     * @return Generator Supported secure random byte generator
+     * @throws GeneratorException If none of the default generators are supported
+     */
+    private function getDefaultGenerator()
+    {
+        foreach (self::$defaultGenerators as $generator) {
+            $generator = new $generator;
 
-            foreach ($generators as $generator) {
-                $this->generator = new $generator;
-
-                if ($this->generator->isSupported()) {
-                    break;
-                }
+            if ($generator->isSupported()) {
+                return $generator;
             }
         }
 
-        if (!$this->generator->isSupported()) {
-            throw new GeneratorException('No supported secure random byte generator available');
-        }
+        throw new GeneratorException('Default secure random byte generators are not supported by the system');
     }
 
     /**
@@ -88,6 +96,30 @@ class SecureRandom
     }
 
     /**
+     * Returns a random number between 0 and the limit.
+     * @param integer $limit Maximum random number
+     * @return integer Random number between 0 and the limit
+     */
+    private function getNumber($limit)
+    {
+        if ($limit === 0) {
+            return 0;
+        }
+
+        for ($bits = 1, $mask = 1; $limit >> $bits > 0; $bits++) {
+            $mask |= 1 << $bits;
+        }
+
+        $bytes = (int) ceil($bits / 8);
+
+        do {
+            $result = hexdec(bin2hex($this->generator->getBytes($bytes))) & $mask;
+        } while ($result > $limit);
+
+        return $result;
+    }
+
+    /**
      * Returns a random integer between two positive integers (inclusive).
      * @param integer $min Minimum limit
      * @param integer $max Maximum limit
@@ -101,23 +133,9 @@ class SecureRandom
 
         if ($min < 0 || $max < $min) {
             throw new \InvalidArgumentException('Invalid minimum or maximum value');
-        } elseif ($min === $max) {
-            return $min;
         }
 
-        $diff = $max - $min;
-
-        for ($bits = 1, $mask = 1; $diff >> $bits > 0; $bits++) {
-            $mask |= 1 << $bits;
-        }
-
-        $bytes = (int) ceil($bits / 8);
-
-        do {
-            $result = hexdec(bin2hex($this->generator->getBytes($bytes))) & $mask;
-        } while ($result > $diff);
-
-        return $min + $result;
+        return $min + $this->getNumber($max - $min);
     }
 
     /**
@@ -126,7 +144,7 @@ class SecureRandom
      */
     public function getFloat()
     {
-        return (float) ($this->getInteger(0, PHP_INT_MAX) / PHP_INT_MAX);
+        return (float) ($this->getNumber(PHP_INT_MAX) / PHP_INT_MAX);
     }
 
     /**
@@ -153,7 +171,7 @@ class SecureRandom
         $result = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $element = array_slice($array, $this->getInteger(0, $size - $i - 1), 1, true);
+            $element = array_slice($array, $this->getNumber($size - $i - 1), 1, true);
             $result += $element;
             unset($array[key($element)]);
         }
@@ -169,11 +187,11 @@ class SecureRandom
      */
     public function choose(array $array)
     {
-        if ($array === []) {
+        if (count($array) < 1) {
             throw new \InvalidArgumentException('Array must have at least one value');
         }
 
-        return current(array_slice($array, $this->getInteger(0, count($array) - 1), 1));
+        return current(array_slice($array, $this->getNumber(count($array) - 1), 1));
     }
 
     /**
@@ -211,21 +229,41 @@ class SecureRandom
     public function getSequence($choices, $length)
     {
         $length = (int) $length;
-        $values = is_array($choices) ? array_values($choices) : str_split($choices);
-        $count = count($values);
+        $string = is_string($choices);
 
         if ($length < 0) {
-            throw new \InvalidArgumentException('Sequence length must be at least 0');
-        } elseif ($count < 1 && $length > 0) {
-            throw new \InvalidArgumentException('Must have at least one value to choose from');
+            throw new \InvalidArgumentException('Invalid sequence length');
         }
 
+        $result = $this->getSequenceValues(
+            $string ? str_split($choices) : array_values($choices),
+            $length
+        );
+
+        return $string ? implode('', $result) : $result;
+    }
+
+    /**
+     * Returns the selected list of values for the sequence
+     * @param array $values List of possible values
+     * @param integer $length Number of values to return
+     * @return array Selected list of values for the sequence
+     */
+    private function getSequenceValues(array $values, $length)
+    {
+        if ($length < 1) {
+            return [];
+        } elseif (count($values) < 1) {
+            throw new \InvalidArgumentException('Cannot generated sequence from empty value set');
+        }
+
+        $size = count($values);
         $result = [];
 
         for ($i = 0; $i < $length; $i++) {
-            $result[] = $values[$this->getInteger(0, $count - 1)];
+            $result[] = $values[$this->getNumber($size - 1)];
         }
 
-        return is_array($choices) ? $result : implode('', $result);
+        return $result;
     }
 }
