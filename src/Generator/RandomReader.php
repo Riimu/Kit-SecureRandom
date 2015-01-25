@@ -14,16 +14,10 @@ namespace Riimu\Kit\SecureRandom\Generator;
  */
 class RandomReader extends AbstractGenerator
 {
-    /**
-     * Path to read from.
-     * @var string
-     */
+    /** @var string Path to read from */
     private $source;
 
-    /**
-     * File pointer to the random source.
-     * @var resource|null
-     */
+    /** @var resource|null File pointer to the random source */
     private $pointer;
 
     /**
