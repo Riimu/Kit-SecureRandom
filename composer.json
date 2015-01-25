@@ -1,7 +1,7 @@
 {
     "name": "riimu/kit-securerandom",
     "type": "library",
-    "description": "Library for leveraging available secure random generators.",
+    "description": "Library for leveraging available secure random generators",
     "homepage": "http://kit.riimu.net",
     "keywords": ["secure", "random", "generator"],
     "license": "MIT",
