@@ -254,7 +254,7 @@ class SecureRandom
         if ($length < 1) {
             return [];
         } elseif (count($values) < 1) {
-            throw new \InvalidArgumentException('Cannot generated sequence from empty value set');
+            throw new \InvalidArgumentException('Cannot generate sequence from empty value set');
         }
 
         $size = count($values);

@@ -133,11 +133,11 @@ instead by setting the constructor parameter to false and providing the
 generator to `SecureRandom` in the constructor. For example:
 
 ```php
+<?php
 
 require 'vendor/autoload.php';
-$rng = new \Riimu\Kit\SecureRandom\SecureRandom(
-    new \Riimu\Kit\SecureRandom\Generator\RandomReader(false)
-);
+$generator = new \Riimu\Kit\SecureRandom\Generator\RandomReader(false);
+$rng = new \Riimu\Kit\SecureRandom\SecureRandom($generator);
 ```
 
 ## Available random generators ##
@@ -164,6 +164,9 @@ If you wish to explicitly define the byte generator, you may provide it as the
 constructor parameter for the `SecureRandom`. For example:
 
 ```php
+<?php
+
+require 'vendor/autoload.php';
 $rng = new \Riimu\Kit\SecureRandom\SecureRandom(
     new \Riimu\Kit\SecureRandom\Generator\Mcrypt()
 );
