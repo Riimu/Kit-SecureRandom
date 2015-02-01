@@ -1,6 +1,6 @@
 # Secure Random Generator #
 
-SecureRandom is a PHP library for using available secure random byte generators
+*SecureRandom* is a PHP library for using available secure random byte generators
 to generate secure random values. This library has two main purposes:
 
   * to provide a common interface for different secure random generators
