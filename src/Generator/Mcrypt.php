@@ -16,7 +16,7 @@ namespace Riimu\Kit\SecureRandom\Generator;
  */
 class Mcrypt extends AbstractGenerator
 {
-    /** @var integer Random source for mcrypt_create_iv */
+    /** @var int Random source for mcrypt_create_iv */
     private $mode;
 
     /**

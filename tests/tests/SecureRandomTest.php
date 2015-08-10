@@ -15,9 +15,11 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
         $mock = $this->getMock('\Riimu\Kit\SecureRandom\Generator\Generator', ['getBytes', 'isSupported']);
         $mock->expects($this->once())->method('isSupported')->will($this->returnValue(true));
-        $mock->expects($this->any())->method('getBytes')->with($this->equalTo(1))->will($this->returnCallback(function () use (& $count) {
-            return chr($count++ & 255);
-        }));
+        $mock->expects($this->any())->method('getBytes')->with($this->equalTo(1))->will(
+            $this->returnCallback(function () use (& $count) {
+                return chr($count++ & 255);
+            })
+        );
 
         $random = new SecureRandom($mock);
         $counts = array_fill(0, 18, 0);

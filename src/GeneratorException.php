@@ -10,5 +10,4 @@ namespace Riimu\Kit\SecureRandom;
  */
 class GeneratorException extends \RuntimeException
 {
-
 }
