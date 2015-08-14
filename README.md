@@ -25,8 +25,8 @@ The API documentation, which can be generated using Apigen, can be read online
 at: http://kit.riimu.net/api/securerandom/
 
 [![Build Status](https://img.shields.io/travis/Riimu/Kit-SecureRandom.svg?style=flat)](https://travis-ci.org/Riimu/Kit-SecureRandom)
-[![Coverage Status](https://img.shields.io/coveralls/Riimu/Kit-SecureRandom.svg?style=flat)](https://coveralls.io/r/Riimu/Kit-SecureRandom?branch=master)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-SecureRandom.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/?branch=master)
+[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-SecureRandom.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-SecureRandom.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
 
 ## Requirements ##
 
