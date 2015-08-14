@@ -26,7 +26,7 @@ class OpenSSL extends AbstractGenerator
     {
         $bytes = openssl_random_pseudo_bytes($count, $strong);
 
-        if (!$strong) {
+        if ($strong !== true) {
             throw new GeneratorException('OpenSSL failed to generate strong bytes');
         }
 

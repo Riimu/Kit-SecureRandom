@@ -44,7 +44,7 @@ class SecureRandom
      * think this provides enough security, create the desired random generator
      * using /dev/random as the source.
      *
-     * @param Generator $generator The generator to use for generating random bytes
+     * @param Generator|null $generator Random byte generator or null for default
      * @throws GeneratorException If the provided or default generators are not supported
      */
     public function __construct(Generator $generator = null)

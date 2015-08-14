@@ -14,10 +14,13 @@ abstract class AbstractGenerator implements Generator
 {
     public function getBytes($count)
     {
+        $count = (int) $count;
         $bytes = $this->readBytes($count);
 
-        if ($bytes === false || strlen($bytes) !== $count) {
-            throw new GeneratorException('Random source returned invalid number of bytes');
+        if (!is_string($bytes)) {
+            throw new GeneratorException('The random byte generator did not return a string');
+        } elseif (strlen($bytes) !== $count) {
+            throw new GeneratorException('The random byte generator returned an invalid number of bytes');
         }
 
         return $bytes;

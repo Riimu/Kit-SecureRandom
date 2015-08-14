@@ -11,6 +11,24 @@ use Riimu\Kit\SecureRandom\Generator\RandomReader;
  */
 class GeneratorTest extends \PHPUnit_Framework_TestCase
 {
+    public function testInvalidTypeOfBytes()
+    {
+        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\AbstractGenerator', ['isSupported', 'readBytes']);
+        $mock->expects($this->once())->method('readBytes')->will($this->returnValue(true));
+
+        $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
+        $mock->getBytes(6);
+    }
+
+    public function testInvalidNumberOfBytes()
+    {
+        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\AbstractGenerator', ['isSupported', 'readBytes']);
+        $mock->expects($this->once())->method('readBytes')->will($this->returnValue('aa'));
+
+        $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
+        $mock->getBytes(6);
+    }
+
     public function testRandomReader()
     {
         $this->assertGeneratorWorks(new Generator\RandomReader(true));
@@ -19,6 +37,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
     public function testRandomReaderShutdown()
     {
         $rng = new RandomReader();
+
         if (!$rng->isSupported()) {
             $this->markTestSkipped('/dev/urandom cannot be read');
         }
@@ -71,6 +90,6 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
         }
 
-        $this->assertSame(1, strlen($generator->getBytes(1)));
+        $this->assertSame(16, strlen($generator->getBytes(16)));
     }
 }
