@@ -9,7 +9,7 @@ use Riimu\Kit\SecureRandom\Generator\RandomReader;
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class GeneratorsTest extends \PHPUnit_Framework_TestCase
+class GeneratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testRandomReader()
     {

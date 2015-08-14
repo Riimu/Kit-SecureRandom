@@ -223,10 +223,10 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     {
         $rng = $this->createWithList([2, 1, 1, 2, 1, 1]);
         $this->assertSame(['c' => '2'], $rng->getArray([
-            'a' => '0', 'b' => '1', 'c' => '2'
+            'a' => '0', 'b' => '1', 'c' => '2',
         ], 1));
         $this->assertSame(['b' => '1', 'c' => '2'], $rng->getArray([
-            'a' => '0', 'b' => '1', 'c' => '2'
+            'a' => '0', 'b' => '1', 'c' => '2',
         ], 2));
         $this->assertSame([2 => 'c'], $rng->getArray(['a', 'b', 'c'], 1));
         $this->assertSame([1 => 'b', 2 => 'c'], $rng->getArray(['a', 'b', 'c'], 2));
@@ -242,7 +242,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     {
         $rng = $this->createWithList([1]);
         $this->assertSame('1', $rng->choose([
-            'a' => '0', 'b' => '1', 'c' => '2'
+            'a' => '0', 'b' => '1', 'c' => '2',
         ]));
     }
 
@@ -252,7 +252,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             ['a' => '0', 'c' => '2', 'b' => '1'],
             $rng->shuffle([
-                'a' => '0', 'b' => '1', 'c' => '2'
+                'a' => '0', 'b' => '1', 'c' => '2',
             ])
         );
         $this->assertSame(
@@ -297,6 +297,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
             return [$this->equalTo(strlen($value))];
         }, $strings));
         $will->will(call_user_func_array([$this, 'onConsecutiveCalls'], $strings));
+
         return new SecureRandom($mock);
     }
 }
