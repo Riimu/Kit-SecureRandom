@@ -1,5 +1,10 @@
 # Changelog #
 
+## v1.1.2 (2015-08-14) ##
+
+  * Address some unlikely corner cases
+  * Improve coding standards in some areas of code
+
 ## v1.1.1 (2015-01-25) ##
 
   * Improvements in code quality and documentation

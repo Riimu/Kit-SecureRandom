@@ -3,10 +3,10 @@
 namespace Riimu\Kit\SecureRandom\Generator;
 
 /**
- * Generates bytes reading directly from random device.
+ * Generates bytes reading directly from the random device.
  *
- * RandomReader generator creates bytes by reading directly from either
- * /dev/urandom or /dev/random.
+ * RandomReader generates random bytes by reading directly from the random
+ * device (i.e. from /dev/urandom or /dev/random).
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
@@ -14,7 +14,7 @@ namespace Riimu\Kit\SecureRandom\Generator;
  */
 class RandomReader extends AbstractGenerator
 {
-    /** @var string Path to read from */
+    /** @var string Path to the random device */
     private $source;
 
     /** @var resource|null File pointer to the random source */
@@ -22,7 +22,7 @@ class RandomReader extends AbstractGenerator
 
     /**
      * Creates new instance of RandomReader.
-     * @param bool $urandom True to read from /dev/urandom, false to read from /dev/random
+     * @param bool $urandom True to read from /dev/urandom and false to read from /dev/random
      */
     public function __construct($urandom = true)
     {
