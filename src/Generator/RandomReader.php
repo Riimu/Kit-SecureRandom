@@ -60,8 +60,12 @@ class RandomReader extends AbstractGenerator
     {
         if (!isset($this->pointer)) {
             $this->pointer = fopen($this->source, 'r');
-            stream_set_chunk_size($this->pointer, 32);
-            stream_set_read_buffer($this->pointer, 32);
+
+            // File read buffering is not supported on HHVM
+            if (!defined('HHVM_VERSION')) {
+                stream_set_chunk_size($this->pointer, 32);
+                stream_set_read_buffer($this->pointer, 32);
+            }
         }
 
         return $this->pointer;
