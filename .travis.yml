@@ -24,7 +24,7 @@ before_script:
   - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then export TEST_BIN="phpdbg"; else export TEST_BIN="php"; fi
 
 script:
-  - "$TEST_BIN" vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover;
+  - $TEST_BIN vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover;
   - vendor/bin/phpcs --standard=PSR2 src tests
   - vendor/bin/php-cs-fixer fix --dry-run --diff
 
