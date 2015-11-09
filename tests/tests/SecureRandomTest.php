@@ -211,14 +211,22 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testGetArray()
     {
         $rng = $this->createWithList([2, 1, 1, 2, 1, 1]);
-        $this->assertSame(['c' => '2'], $rng->getArray([
-            'a' => '0', 'b' => '1', 'c' => '2',
-        ], 1));
-        $this->assertSame(['b' => '1', 'c' => '2'], $rng->getArray([
-            'a' => '0', 'b' => '1', 'c' => '2',
-        ], 2));
-        $this->assertSame([2 => 'c'], $rng->getArray(['a', 'b', 'c'], 1));
-        $this->assertSame([1 => 'b', 2 => 'c'], $rng->getArray(['a', 'b', 'c'], 2));
+
+        $associative = ['a' => '0', 'b' => '1', 'c' => '2'];
+        $numeric = ['a', 'b', 'c'];
+
+        $this->assertSame(
+            ['c' => '2'],
+            $rng->getArray($associative, 1)
+        );
+
+        $this->assertSame(
+            ['b' => '1', 'c' => '2'],
+            $rng->getArray($associative, 2)
+        );
+
+        $this->assertSame([2 => 'c'], $rng->getArray($numeric, 1));
+        $this->assertSame([1 => 'b', 2 => 'c'], $rng->getArray($numeric, 2));
     }
 
     public function testMinimalBytes()
