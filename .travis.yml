@@ -20,11 +20,12 @@ install:
   - travis_retry composer update --no-interaction --prefer-source
   - travis_retry wget https://scrutinizer-ci.com/ocular.phar
 
-before_script:
-  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then export TEST_BIN="phpdbg"; else export TEST_BIN="php"; fi
-
 script:
-  - $TEST_BIN vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover;
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
+      phpdbg -qrr vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover;
+    else
+      vendor/bin/phpunit --coverage-clover=coverage.clover;
+    fi
   - vendor/bin/phpcs --standard=PSR2 src tests
   - vendor/bin/php-cs-fixer fix --dry-run --diff
 
