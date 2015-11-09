@@ -25,9 +25,9 @@ before_script:
 
 script:
   - if [[ $TRAVIS_PHP_VERSION =~ ^7 ]]; then
-      phpdbg -qrr vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover;
+      phpdbg -qrr vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover --coverage-text;
     else
-      vendor/bin/phpunit --coverage-clover=coverage.clover;
+      vendor/bin/phpunit --coverage-clover=coverage.clover --coverage-text;
     fi
   - vendor/bin/phpcs --standard=PSR2 src tests
   - vendor/bin/php-cs-fixer fix --dry-run --diff
