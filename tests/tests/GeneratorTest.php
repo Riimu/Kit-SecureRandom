@@ -72,6 +72,11 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertGeneratorWorks(new Generator\OpenSSL());
     }
 
+    public function testInternal()
+    {
+        $this->assertGeneratorWorks(new Generator\Internal());
+    }
+
     public function testOpenSSLFail()
     {
         $generator = new Generator\OpenSSL();

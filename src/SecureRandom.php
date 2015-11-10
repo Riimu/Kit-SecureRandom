@@ -22,6 +22,7 @@ class SecureRandom
 
     /** @var string[] List of default generators */
     private static $defaultGenerators = [
+        '\Riimu\Kit\SecureRandom\Generator\Internal',
         '\Riimu\Kit\SecureRandom\Generator\RandomReader',
         '\Riimu\Kit\SecureRandom\Generator\Mcrypt',
         '\Riimu\Kit\SecureRandom\Generator\OpenSSL',
@@ -35,6 +36,7 @@ class SecureRandom
      * the constructor will attempt to create the random byte generators in the
      * following order until it finds one that is supported:
      *
+     * - Internal
      * - RandomReader
      * - Mcrypt
      * - OpenSSL
