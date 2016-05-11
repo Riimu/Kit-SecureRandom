@@ -111,6 +111,16 @@ class SecureRandom
             return $this->generator->getNumber(0, $limit);
         }
 
+        return $this->getByteNumber($limit);
+    }
+
+    /**
+     * Returns a random number generated using the random byte generator.
+     * @param int $limit Maximum value for the random number
+     * @return int The generated random number between 0 and the limit
+     */
+    private function getByteNumber($limit)
+    {
         for ($bits = 1, $mask = 1; $limit >> $bits > 0; $bits++) {
             $mask |= 1 << $bits;
         }

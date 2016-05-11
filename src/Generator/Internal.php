@@ -38,10 +38,22 @@ class Internal extends AbstractGenerator implements NumberGenerator
             $number = false;
         }
 
-        if (!is_int($number) || $number < $min || $number > $max) {
+        if (!$this->isValidResult($number, $min, $max)) {
             throw new GeneratorException('Error generating random number', 0, $exception);
         }
 
         return $number;
+    }
+
+    /**
+     * Tells if the generated number is a valid result.
+     * @param int $number The number to test
+     * @param int $min The minimum value for the number
+     * @param int $max The maximum value for the number
+     * @return bool True if the number is a valid result, false if not
+     */
+    private function isValidResult($number, $min, $max)
+    {
+        return is_int($number) && $number >= $min && $number <= $max;
     }
 }
