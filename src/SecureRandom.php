@@ -3,6 +3,7 @@
 namespace Riimu\Kit\SecureRandom;
 
 use Riimu\Kit\SecureRandom\Generator\Generator;
+use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
 
 /**
  * Library for normalizing bytes returned by secure random byte generators.
@@ -106,6 +107,8 @@ class SecureRandom
     {
         if ($limit === 0) {
             return 0;
+        } elseif ($this->generator instanceof NumberGenerator) {
+            return $this->generator->getNumber(0, $limit);
         }
 
         for ($bits = 1, $mask = 1; $limit >> $bits > 0; $bits++) {

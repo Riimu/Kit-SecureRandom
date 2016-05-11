@@ -30,7 +30,7 @@ abstract class AbstractGenerator implements Generator
      * Reads bytes from the randomness source.
      * @param int $count number of bytes to read
      * @return string|false The bytes read from the randomness source or false on error
-     * @throws \Riimu\Kit\SecureRandom\GeneratorException If error occurs in byte generation
+     * @throws GeneratorException If error occurs in byte generation
      */
     abstract protected function readBytes($count);
 }

@@ -200,6 +200,16 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(2, $rng->getInteger(0, 2));
     }
 
+    public function testUsingNumberGenerator()
+    {
+        $genarator = $this->getMock('Riimu\Kit\SecureRandom\Generator\NumberGenerator');
+        $genarator->method('isSupported')->willReturn(true);
+        $genarator->expects($this->once())->method('getNumber')->willReturn(7);
+
+        $secure = new SecureRandom($genarator);
+        $this->assertSame(7, $secure->getInteger(0, 100));
+    }
+
     public function testGetFloat()
     {
         $rng = $this->createWithList([[PHP_INT_SIZE, 9090], [PHP_INT_SIZE, 0], [PHP_INT_SIZE, PHP_INT_MAX]]);

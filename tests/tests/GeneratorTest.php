@@ -72,11 +72,6 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertGeneratorWorks(new Generator\OpenSSL());
     }
 
-    public function testInternal()
-    {
-        $this->assertGeneratorWorks(new Generator\Internal());
-    }
-
     public function testOpenSSLFail()
     {
         $generator = new Generator\OpenSSL();
@@ -87,6 +82,35 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException('Riimu\Kit\SecureRandom\GeneratorException');
         $generator->getBytes(0);
+    }
+
+    public function testInternal()
+    {
+        $this->assertGeneratorWorks(new Generator\Internal());
+    }
+
+    public function testInternalNumberGenerator()
+    {
+        $generator = new Generator\Internal();
+
+        if (!$generator->isSupported()) {
+            $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
+        }
+
+        $secure = new SecureRandom($generator);
+        $this->assertInternalType('int', $secure->getInteger(0, 10));
+    }
+
+    public function testInternalFail()
+    {
+        $generator = new Generator\Internal();
+
+        if (!$generator->isSupported()) {
+            $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
+        }
+
+        $this->setExpectedException('Riimu\Kit\SecureRandom\GeneratorException');
+        $generator->getNumber(10, 0);
     }
 
     public function assertGeneratorWorks(Generator\Generator $generator)
