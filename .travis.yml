@@ -13,6 +13,7 @@ cache:
   - vendor
 
 before_install:
+  - if [[ $TRAVIS_PHP_VERSION =~ ^7 ]]; then phpenv config-rm xdebug.ini; fi
   - composer self-update
 
 install:
