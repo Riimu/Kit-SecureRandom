@@ -1,5 +1,5 @@
-.idea
 vendor
 coverage
 api
 dev
+composer.lock
