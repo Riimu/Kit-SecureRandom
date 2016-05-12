@@ -1,6 +1,6 @@
 # Changelog #
 
-## v1.2.0 (2016-05-11) ##
+## v1.2.0 (2016-05-12) ##
 
   * Added support for PHP's internal CSPRNG in php 7.0 (which is used by default)
   * Added NumberGenerator interface for generators that can natively generate numbers
