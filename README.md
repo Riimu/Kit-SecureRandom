@@ -165,9 +165,9 @@ following order:
   * `Generator\Internal` uses the internal functions available in PHP 7.0
   * `Generator\RandomReader` simply reads bytes from the random device
     `/dev/urandom`
-  * `Generator\Mcrypt` uses `mcrypt_create_iv` to generate random bytes using
+  * `Generator\Mcrypt` uses `mcrypt_create_iv()` to generate random bytes using
     `MCRYPT_DEV_URANDOM` as the source.
-  * `Generator\OpenSSL` uses `openssl_random_pseudo_bytes` to generate random
+  * `Generator\OpenSSL` uses `openssl_random_pseudo_bytes()` to generate random
     bytes.
 
 There has been some debate on whether the algorithm used by OpenSSL is actually
