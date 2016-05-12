@@ -32,6 +32,8 @@ at: http://kit.riimu.net/api/securerandom/
 [![Build Status](https://img.shields.io/travis/Riimu/Kit-SecureRandom.svg)](https://travis-ci.org/Riimu/Kit-SecureRandom)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-SecureRandom.svg)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-SecureRandom.svg)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
+[![HHVM Status](https://img.shields.io/hhvm/riimu/Kit-SecureRandom.svg)](http://hhvm.h4cc.de/package/riimu/Kit-PHPEncoder)
+[![PHP7 Status](https://img.shields.io/badge/PHP7-tested-brightgreen.svg)]()
 
 ## Requirements ##
 
