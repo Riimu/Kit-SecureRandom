@@ -2,18 +2,25 @@
 
 namespace Riimu\Kit\SecureRandom;
 
+use PHPUnit\Framework\TestCase;
+use Riimu\Kit\SecureRandom\Generator\Generator;
+use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
+
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class SecureRandomTest extends \PHPUnit_Framework_TestCase
+class SecureRandomTest extends TestCase
 {
     public function testEvenDistribution()
     {
         $count = 0;
 
-        $mock = $this->getMock('\Riimu\Kit\SecureRandom\Generator\Generator', ['getBytes', 'isSupported']);
+        $mock = $this->getMockBuilder(Generator::class)
+            ->setMethods(['getBytes', 'isSupported'])
+            ->getMock();
+
         $mock->expects($this->once())->method('isSupported')->will($this->returnValue(true));
         $mock->expects($this->any())->method('getBytes')->with($this->equalTo(1))->will(
             $this->returnCallback(function () use (& $count) {
@@ -36,40 +43,37 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
         $rng = new SecureRandom();
         $reflection = new \ReflectionProperty($rng, 'generator');
         $reflection->setAccessible(true);
-        $this->assertInstanceOf('Riimu\Kit\SecureRandom\Generator\Generator', $reflection->getValue($rng));
+        $this->assertInstanceOf(Generator::class, $reflection->getValue($rng));
     }
 
     public function testInvalidGenerator()
     {
-        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\Generator');
+        $mock = $this->createMock(Generator::class);
         $mock->expects($this->once())->method('isSupported')->will($this->returnValue(false));
 
-        $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
+        $this->expectException(GeneratorException::class);
         new SecureRandom($mock);
     }
 
     public function testUnsupportedDefaultGenerators()
     {
-        $list = new \ReflectionProperty('\Riimu\Kit\SecureRandom\SecureRandom', 'defaultGenerators');
+        $list = new \ReflectionProperty(SecureRandom::class, 'defaultGenerators');
         $list->setAccessible(true);
         $defaults = $list->getValue();
         $list->setValue([]);
-        $exception = null;
 
         try {
+            $this->expectException(GeneratorException::class);
             new SecureRandom();
-        } catch (\Exception $ex) {
-            $exception = $ex;
+        } finally {
+            $list->setValue($defaults);
         }
-
-        $list->setValue($defaults);
-        $this->assertInstanceOf('\Riimu\Kit\SecureRandom\GeneratorException', $exception);
     }
 
     public function testInvalidByteCount()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getBytes(-1);
     }
 
@@ -82,21 +86,21 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testNegativeMinimumValue()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getInteger(-1, 1);
     }
 
     public function testSmallerMaximumValue()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getInteger(1, 0);
     }
 
     public function testTooHighMaximum()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getInteger(0, PHP_INT_MAX + 1);
     }
 
@@ -109,7 +113,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testInvalidNumberOfElements()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getArray([], 1);
     }
 
@@ -134,7 +138,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testChoosingFromEmptyArray()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->choose([]);
     }
 
@@ -147,14 +151,14 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testInvalidSequenceLength()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getSequence('abc', -1);
     }
 
     public function testInvalidSequenceChoiceCount()
     {
         $rng = $this->createWithList();
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $rng->getSequence([], 1);
     }
 
@@ -202,7 +206,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testUsingNumberGenerator()
     {
-        $genarator = $this->getMock('Riimu\Kit\SecureRandom\Generator\NumberGenerator');
+        $genarator = $this->createMock(NumberGenerator::class);
         $genarator->method('isSupported')->willReturn(true);
         $genarator->expects($this->once())->method('getNumber')->willReturn(7);
 
@@ -213,9 +217,9 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testGetFloat()
     {
         $rng = $this->createWithList([[PHP_INT_SIZE, 9090], [PHP_INT_SIZE, 0], [PHP_INT_SIZE, PHP_INT_MAX]]);
-        $this->assertTrue(9090 / PHP_INT_MAX === $rng->getFloat());
-        $this->assertTrue(0.0 === $rng->getFloat());
-        $this->assertTrue(1.0 === $rng->getFloat());
+        $this->assertSame(9090 / PHP_INT_MAX, $rng->getFloat());
+        $this->assertSame(0.0, $rng->getFloat());
+        $this->assertSame(1.0, $rng->getFloat());
     }
 
     public function testGetArray()
@@ -242,7 +246,7 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
     public function testMinimalBytes()
     {
         $rng = $this->createWithList([0x0100, 0x80, 0xFF, 0x80]);
-        $this->assertSame([0x0100 => 0x0100, 0x80 => 0x80, 0x81 => 0x81], $rng->getArray(range(0, 256), 3));
+        $this->assertSame([0x0100 => 0x0100, 0x80 => 0x80, 0xFF => 0xFF], $rng->getArray(range(0, 256), 3));
     }
 
     public function testChoose()
@@ -255,12 +259,10 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
 
     public function testShuffle()
     {
-        $rng = $this->createWithList([0, 1, 0, 1]);
+        $rng = $this->createWithList([0, 1, 0, 0]);
         $this->assertSame(
-            ['a' => '0', 'c' => '2', 'b' => '1'],
-            $rng->shuffle([
-                'a' => '0', 'b' => '1', 'c' => '2',
-            ])
+            ['a' => '0', 'b' => '1', 'c' => '2'],
+            $rng->shuffle(['a' => '0', 'b' => '1', 'c' => '2'])
         );
         $this->assertSame(
             [0 => 'a', 2 => 'c', 1 => 'b'],
@@ -297,8 +299,8 @@ class SecureRandomTest extends \PHPUnit_Framework_TestCase
             $strings[] = $string;
         }
 
-        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\Generator');
-        $mock->expects($this->any())->method('isSupported')->will($this->returnValue(true));
+        $mock = $this->createMock(Generator::class);
+        $mock->method('isSupported')->willReturn(true);
         $with = $mock->expects($this->exactly(count($list)))->method('getBytes');
         $will = call_user_func_array([$with, 'withConsecutive'], array_map(function ($value) {
             return [$this->equalTo(strlen($value))];

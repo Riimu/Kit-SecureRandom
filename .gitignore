@@ -1,5 +1,3 @@
-vendor
-coverage
-api
-dev
+build/
+vendor/
 composer.lock

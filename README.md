@@ -29,17 +29,16 @@ even distributions of random numbers.
 The API documentation, which can be generated using Apigen, can be read online
 at: http://kit.riimu.net/api/securerandom/
 
-[![Build Status](https://img.shields.io/travis/Riimu/Kit-SecureRandom.svg)](https://travis-ci.org/Riimu/Kit-SecureRandom)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-SecureRandom.svg)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-SecureRandom.svg)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
-[![HHVM Status](https://img.shields.io/hhvm/riimu/Kit-SecureRandom.svg)](http://hhvm.h4cc.de/package/riimu/Kit-SecureRandom)
-[![PHP7 Status](https://img.shields.io/badge/PHP7-tested-brightgreen.svg)]()
+[![Travis](https://img.shields.io/travis/Riimu/Kit-SecureRandom.svg?style=flat-square)](https://travis-ci.org/Riimu/Kit-SecureRandom)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/Riimu/Kit-SecureRandom.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
+[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-SecureRandom.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
+[![Packagist](https://img.shields.io/packagist/v/riimu/kit-securerandom.svg?style=flat-square)](https://packagist.org/packages/riimu/kit-securerandom)
 
 ## Requirements ##
 
 In order to use this library, the following requirements must be met:
 
-  * PHP version 5.4
+  * PHP version 5.6
   * If using PHP version prior to 7.0, one of the following must be available:
     * `/dev/urandom` must be readable
     * `Mcrypt` extension must be enabled

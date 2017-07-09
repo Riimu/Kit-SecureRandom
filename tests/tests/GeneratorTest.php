@@ -2,6 +2,9 @@
 
 namespace Riimu\Kit\SecureRandom;
 
+use PHPUnit\Framework\TestCase;
+use Riimu\Kit\SecureRandom\Generator\AbstractGenerator;
+use Riimu\Kit\SecureRandom\Generator\Mcrypt;
 use Riimu\Kit\SecureRandom\Generator\RandomReader;
 
 /**
@@ -9,23 +12,29 @@ use Riimu\Kit\SecureRandom\Generator\RandomReader;
  * @copyright Copyright (c) 2014, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class GeneratorTest extends \PHPUnit_Framework_TestCase
+class GeneratorTest extends TestCase
 {
     public function testInvalidTypeOfBytes()
     {
-        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\AbstractGenerator', ['isSupported', 'readBytes']);
-        $mock->expects($this->once())->method('readBytes')->will($this->returnValue(true));
+        $mock = $this->getMockBuilder(AbstractGenerator::class)
+            ->setMethods(['isSupported', 'readBytes'])
+            ->getMock();
 
-        $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
+        $mock->expects($this->once())->method('readBytes')->willReturn(true);
+
+        $this->expectException(GeneratorException::class);
         $mock->getBytes(6);
     }
 
     public function testInvalidNumberOfBytes()
     {
-        $mock = $this->getMock('Riimu\Kit\SecureRandom\Generator\AbstractGenerator', ['isSupported', 'readBytes']);
+        $mock = $this->getMockBuilder(AbstractGenerator::class)
+            ->setMethods(['isSupported', 'readBytes'])
+            ->getMock();
+
         $mock->expects($this->once())->method('readBytes')->will($this->returnValue('aa'));
 
-        $this->setExpectedException('\Riimu\Kit\SecureRandom\GeneratorException');
+        $this->expectException(GeneratorException::class);
         $mock->getBytes(6);
     }
 
@@ -80,7 +89,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
         }
 
-        $this->setExpectedException('Riimu\Kit\SecureRandom\GeneratorException');
+        $this->expectException(GeneratorException::class);
         $generator->getBytes(0);
     }
 
@@ -109,7 +118,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
         }
 
-        $this->setExpectedException('Riimu\Kit\SecureRandom\GeneratorException');
+        $this->expectException(GeneratorException::class);
         $generator->getNumber(10, 0);
     }
 
@@ -119,6 +128,12 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
         }
 
-        $this->assertSame(16, strlen($generator->getBytes(16)));
+        if ($generator instanceof Mcrypt && version_compare(PHP_VERSION, '7.1', '>=')) {
+            $bytes = @$generator->getBytes(16);
+        } else {
+            $bytes = $generator->getBytes(16);
+        }
+
+        $this->assertSame(16, strlen($bytes));
     }
 }

@@ -154,8 +154,25 @@ class SecureRandom
     }
 
     /**
+     * Returns a random float between 0 and 1 (excluding the number 1).
+     * @return float Random float between 0 and 1 (excluding 1)
+     */
+    public function getRandom()
+    {
+        $bytes = $this->generator->getBytes(7);
+        $result = 0;
+
+        for ($i = 0; $i < 7; $i++) {
+            $result += hexdec(bin2hex($bytes[$i]));
+            $result /= 256;
+        }
+
+        return $result;
+    }
+
+    /**
      * Returns a random float between 0 and 1 (inclusive).
-     * @return float Random float between 0 and 1
+     * @return float Random float between 0 and 1 (inclusive)
      */
     public function getFloat()
     {
@@ -184,11 +201,15 @@ class SecureRandom
         }
 
         $result = [];
+        $keys = array_keys($array);
 
-        for ($i = 0; $i < $count; $i++) {
-            $element = array_slice($array, $this->getNumber($size - $i - 1), 1, true);
-            $result += $element;
-            unset($array[key($element)]);
+        for ($last = $size - 1; $size - $last <= $count; $last--) {
+            $index = $this->getNumber($last);
+            $result[$keys[$index]] = $array[$keys[$index]];
+
+            if ($index < $last) {
+                $keys[$index] = $keys[$last];
+            }
         }
 
         return $result;
@@ -196,7 +217,7 @@ class SecureRandom
 
     /**
      * Returns one randomly selected value from the array.
-     * @param array $array Array to choose from
+     * @param array $array The array to choose from
      * @return mixed One randomly selected value from the array
      * @throws \InvalidArgumentException If the array is empty
      */
@@ -206,13 +227,13 @@ class SecureRandom
             throw new \InvalidArgumentException('Array must have at least one value');
         }
 
-        return current(array_slice($array, $this->getNumber(count($array) - 1), 1));
+        return $array[array_keys($array)[$this->getNumber(count($array) - 1)]];
     }
 
     /**
-     * Returns the array with the elements reordered in random order.
-     * @param array $array Array to shuffle
-     * @return array The provided array with elements in random order
+     * Returns the array with the elements reordered in a random order.
+     * @param array $array The array to shuffle
+     * @return array The provided array with elements in a random order
      */
     public function shuffle(array $array)
     {
@@ -244,18 +265,16 @@ class SecureRandom
     public function getSequence($choices, $length)
     {
         $length = (int) $length;
-        $string = is_string($choices);
 
         if ($length < 0) {
             throw new \InvalidArgumentException('Invalid sequence length');
         }
 
-        $result = $this->getSequenceValues(
-            $string ? str_split($choices) : array_values($choices),
-            $length
-        );
-
-        return $string ? implode('', $result) : $result;
+        if (is_array($choices)) {
+            return $this->getSequenceValues(array_values($choices), $length);
+        } else {
+            return implode($this->getSequenceValues(str_split((string) $choices), $length));
+        }
     }
 
     /**
@@ -280,5 +299,21 @@ class SecureRandom
         }
 
         return $result;
+    }
+
+    /**
+     * Returns a random UUID version 4 identifier.
+     * @return string A random UUID identifier
+     */
+    public function getUuid()
+    {
+        $integers = array_map(function ($bytes) {
+            return hexdec(bin2hex($bytes));
+        }, str_split($this->generator->getBytes(16), 2));
+
+        $integers[3] = $integers[3] & 0x0FFF;
+        $integers[4] = $integers[4] & 0x3FFF | 0x8000;
+
+        return vsprintf('%04x%04x-%04x-4%03x-%04x-%04x%04x%04x', $integers);
     }
 }

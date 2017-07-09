@@ -54,7 +54,7 @@ class RandomReader extends AbstractGenerator
 
     /**
      * Returns the pointer to the random source.
-     * @return resource The pointer to the random source.
+     * @return resource The pointer to the random source
      */
     private function getPointer()
     {
