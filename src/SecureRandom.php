@@ -146,11 +146,23 @@ class SecureRandom
         $min = (int) $min;
         $max = (int) $max;
 
-        if ($min < 0 || $max < $min) {
+        if ($this->isOutOfBounds($min, 0, $max)) {
             throw new \InvalidArgumentException('Invalid minimum or maximum value');
         }
 
         return $min + $this->getNumber($max - $min);
+    }
+
+    /**
+     * Tells if the given number is not within given limits (inclusive).
+     * @param int $number The number to test
+     * @param int $min The minimum allowed limit
+     * @param int $max The maximum allowed limit
+     * @return bool True if the number is out of bounds, false if within bounds
+     */
+    private function isOutOfBounds($number, $min, $max)
+    {
+        return $number < $min || $max < $number;
     }
 
     /**
@@ -160,12 +172,13 @@ class SecureRandom
     public function getRandom()
     {
         $bytes = $this->generator->getBytes(7);
-        $result = 0;
+        $result = 0.0;
 
-        for ($i = 0; $i < 7; $i++) {
-            $result += hexdec(bin2hex($bytes[$i]));
-            $result /= 256;
+        for ($i = 0; $i < 6; $i++) {
+            $result = (ord($bytes[$i]) + $result) / 256;
         }
+
+        $result = ((ord($bytes[6]) & 0b00011111) + $result) / 32;
 
         return $result;
     }
@@ -196,14 +209,15 @@ class SecureRandom
         $count = (int) $count;
         $size = count($array);
 
-        if ($count < 0 || $count > $size) {
+        if ($this->isOutOfBounds($count, 0, $size)) {
             throw new \InvalidArgumentException('Invalid number of elements');
         }
 
         $result = [];
         $keys = array_keys($array);
 
-        for ($last = $size - 1; $size - $last <= $count; $last--) {
+        for ($i = 0; $i < $count; $i++) {
+            $last = $size - $i - 1;
             $index = $this->getNumber($last);
             $result[$keys[$index]] = $array[$keys[$index]];
 
@@ -227,7 +241,9 @@ class SecureRandom
             throw new \InvalidArgumentException('Array must have at least one value');
         }
 
-        return $array[array_keys($array)[$this->getNumber(count($array) - 1)]];
+        $result = array_slice($array, $this->getNumber(count($array) - 1), 1);
+
+        return current($result);
     }
 
     /**
@@ -272,9 +288,9 @@ class SecureRandom
 
         if (is_array($choices)) {
             return $this->getSequenceValues(array_values($choices), $length);
-        } else {
-            return implode($this->getSequenceValues(str_split((string) $choices), $length));
         }
+
+        return implode($this->getSequenceValues(str_split((string) $choices), $length));
     }
 
     /**
@@ -282,12 +298,15 @@ class SecureRandom
      * @param array $values List of possible values
      * @param int $length Number of values to return
      * @return array Selected list of values for the sequence
+     * @throws \InvalidArgumentException If the value set is empty
      */
     private function getSequenceValues(array $values, $length)
     {
         if ($length < 1) {
             return [];
-        } elseif (count($values) < 1) {
+        }
+
+        if (count($values) < 1) {
             throw new \InvalidArgumentException('Cannot generate sequence from empty value set');
         }
 
@@ -311,7 +330,7 @@ class SecureRandom
             return hexdec(bin2hex($bytes));
         }, str_split($this->generator->getBytes(16), 2));
 
-        $integers[3] = $integers[3] & 0x0FFF;
+        $integers[3] &= 0x0FFF;
         $integers[4] = $integers[4] & 0x3FFF | 0x8000;
 
         return vsprintf('%04x%04x-%04x-4%03x-%04x-%04x%04x%04x', $integers);

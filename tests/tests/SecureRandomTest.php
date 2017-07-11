@@ -276,6 +276,26 @@ class SecureRandomTest extends TestCase
         $this->assertSame('adcdb', $rng->getSequence('abcd', 5));
     }
 
+    public function testRandomBounds()
+    {
+        $rng = $this->createWithList([str_repeat("\x00", 7), str_repeat("\xFF", 7)]);
+        $this->assertSame(0.0, $rng->getRandom());
+        $this->assertTrue($rng->getRandom() < 1);
+    }
+
+    public function testUuid()
+    {
+        $rng = $this->createWithList([
+            str_repeat("\x00", 16),
+            str_repeat("\xFF", 16),
+            "\x00\x11\x22\x33\x44\x55\x66\x77\x88\x99\xAA\xBB\xCC\xDD\xEE\xFF",
+        ]);
+
+        $this->assertSame('00000000-0000-4000-8000-000000000000', $rng->getUuid());
+        $this->assertSame('ffffffff-ffff-4fff-bfff-ffffffffffff', $rng->getUuid());
+        $this->assertSame('00112233-4455-4677-8899-aabbccddeeff', $rng->getUuid());
+    }
+
     private function createWithList(array $list = [])
     {
         $strings = [];
