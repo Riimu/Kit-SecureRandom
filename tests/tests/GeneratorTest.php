@@ -4,7 +4,11 @@ namespace Riimu\Kit\SecureRandom;
 
 use PHPUnit\Framework\TestCase;
 use Riimu\Kit\SecureRandom\Generator\AbstractGenerator;
+use Riimu\Kit\SecureRandom\Generator\ByteNumberGenerator;
+use Riimu\Kit\SecureRandom\Generator\Generator;
+use Riimu\Kit\SecureRandom\Generator\Internal;
 use Riimu\Kit\SecureRandom\Generator\Mcrypt;
+use Riimu\Kit\SecureRandom\Generator\OpenSSL;
 use Riimu\Kit\SecureRandom\Generator\RandomReader;
 
 /**
@@ -40,7 +44,7 @@ class GeneratorTest extends TestCase
 
     public function testRandomReader()
     {
-        $this->assertGeneratorWorks(new Generator\RandomReader(true));
+        $this->assertGeneratorWorks(new RandomReader(true));
     }
 
     public function testRandomReaderShutdown()
@@ -63,44 +67,47 @@ class GeneratorTest extends TestCase
 
     public function testBlockingRandomReader()
     {
-        $this->assertGeneratorWorks(new Generator\RandomReader(false));
+        $this->assertGeneratorWorks(new RandomReader(false));
     }
 
     public function testMcrypt()
     {
-        $this->assertGeneratorWorks(new Generator\Mcrypt(true));
+        $this->assertGeneratorWorks(new Mcrypt(true));
     }
 
     public function testBlockingMcrypt()
     {
-        $this->assertGeneratorWorks(new Generator\Mcrypt(false));
+        $this->assertGeneratorWorks(new Mcrypt(false));
     }
 
     public function testOpenSSL()
     {
-        $this->assertGeneratorWorks(new Generator\OpenSSL());
+        $this->assertGeneratorWorks(new OpenSSL());
     }
 
     public function testOpenSSLFail()
     {
-        $generator = new Generator\OpenSSL();
+        $generator = new OpenSSL();
 
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
         }
 
+        $method = new \ReflectionMethod($generator, 'readBytes');
+        $method->setAccessible(true);
+
         $this->expectException(GeneratorException::class);
-        $generator->getBytes(0);
+        $method->invoke($generator, 0);
     }
 
     public function testInternal()
     {
-        $this->assertGeneratorWorks(new Generator\Internal());
+        $this->assertGeneratorWorks(new Internal());
     }
 
     public function testInternalNumberGenerator()
     {
-        $generator = new Generator\Internal();
+        $generator = new Internal();
 
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
@@ -112,7 +119,7 @@ class GeneratorTest extends TestCase
 
     public function testInternalFail()
     {
-        $generator = new Generator\Internal();
+        $generator = new Internal();
 
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
@@ -122,7 +129,25 @@ class GeneratorTest extends TestCase
         $generator->getNumber(10, 0);
     }
 
-    public function assertGeneratorWorks(Generator\Generator $generator)
+    public function testByteNumberGeneratorInvalidLimits()
+    {
+        $generator = new ByteNumberGenerator($this->createMock(Generator::class));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $generator->getNumber(1, 0);
+    }
+
+    public function testByteNumberGeneratorSupportPass()
+    {
+        $generator = $this->createMock(Generator::class);
+        $generator->expects($this->once())->method('isSupported')->willReturn(true);
+
+        $byteNumberGenerator = new ByteNumberGenerator($generator);
+
+        $this->assertTrue($byteNumberGenerator->isSupported());
+    }
+
+    public function assertGeneratorWorks(Generator $generator)
     {
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');

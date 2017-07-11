@@ -2,7 +2,7 @@
 
 namespace Riimu\Kit\SecureRandom;
 
-use Riimu\Kit\SecureRandom\Generator\Generator;
+use Riimu\Kit\SecureRandom\Generator\ByteNumberGenerator;
 use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
 
 /**
@@ -18,15 +18,15 @@ use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
  */
 class SecureRandom
 {
-    /** @var Generator The secure random byte generator used to generate bytes */
+    /** @var NumberGenerator The secure random generator used to generate bytes and numbers */
     private $generator;
 
     /** @var string[] List of default generators */
     private static $defaultGenerators = [
-        '\Riimu\Kit\SecureRandom\Generator\Internal',
-        '\Riimu\Kit\SecureRandom\Generator\RandomReader',
-        '\Riimu\Kit\SecureRandom\Generator\Mcrypt',
-        '\Riimu\Kit\SecureRandom\Generator\OpenSSL',
+        Generator\Internal::class,
+        Generator\RandomReader::class,
+        Generator\Mcrypt::class,
+        Generator\OpenSSL::class,
     ];
 
     /**
@@ -47,10 +47,10 @@ class SecureRandom
      * think this provides enough security, create the desired random generator
      * using /dev/random as the source.
      *
-     * @param Generator|null $generator Random byte generator or null for default
+     * @param Generator\Generator|null $generator Random byte generator or null for default
      * @throws GeneratorException If the provided or default generators are not supported
      */
-    public function __construct(Generator $generator = null)
+    public function __construct(Generator\Generator $generator = null)
     {
         if ($generator === null) {
             $generator = $this->getDefaultGenerator();
@@ -58,17 +58,22 @@ class SecureRandom
             throw new GeneratorException('The provided secure random byte generator is not supported by the system');
         }
 
+        if (!$generator instanceof NumberGenerator) {
+            $generator = new ByteNumberGenerator($generator);
+        }
+
         $this->generator = $generator;
     }
 
     /**
      * Returns the first supported default secure random byte generator.
-     * @return Generator Supported secure random byte generator
+     * @return Generator\Generator Supported secure random byte generator
      * @throws GeneratorException If none of the default generators are supported
      */
     private function getDefaultGenerator()
     {
         foreach (self::$defaultGenerators as $generator) {
+            /** @var Generator\Generator $generator */
             $generator = new $generator();
 
             if ($generator->isSupported()) {
@@ -91,47 +96,9 @@ class SecureRandom
 
         if ($count < 0) {
             throw new \InvalidArgumentException('Number of bytes must be 0 or more');
-        } elseif ($count === 0) {
-            return '';
         }
 
         return $this->generator->getBytes($count);
-    }
-
-    /**
-     * Returns a random number between 0 and the limit.
-     * @param int $limit Maximum random number
-     * @return int Random number between 0 and the limit
-     */
-    private function getNumber($limit)
-    {
-        if ($limit === 0) {
-            return 0;
-        } elseif ($this->generator instanceof NumberGenerator) {
-            return $this->generator->getNumber(0, $limit);
-        }
-
-        return $this->getByteNumber($limit);
-    }
-
-    /**
-     * Returns a random number generated using the random byte generator.
-     * @param int $limit Maximum value for the random number
-     * @return int The generated random number between 0 and the limit
-     */
-    private function getByteNumber($limit)
-    {
-        for ($bits = 1, $mask = 1; $limit >> $bits > 0; $bits++) {
-            $mask |= 1 << $bits;
-        }
-
-        $bytes = (int) ceil($bits / 8);
-
-        do {
-            $result = hexdec(bin2hex($this->generator->getBytes($bytes))) & $mask;
-        } while ($result > $limit);
-
-        return $result;
     }
 
     /**
@@ -150,7 +117,7 @@ class SecureRandom
             throw new \InvalidArgumentException('Invalid minimum or maximum value');
         }
 
-        return $min + $this->getNumber($max - $min);
+        return $this->generator->getNumber($min, $max);
     }
 
     /**
@@ -189,7 +156,7 @@ class SecureRandom
      */
     public function getFloat()
     {
-        return (float) ($this->getNumber(PHP_INT_MAX) / PHP_INT_MAX);
+        return (float) ($this->generator->getNumber(0, PHP_INT_MAX) / PHP_INT_MAX);
     }
 
     /**
@@ -217,10 +184,9 @@ class SecureRandom
         $keys = array_keys($array);
 
         for ($i = 0; $i < $count; $i++) {
-            $last = $size - $i - 1;
-            $index = $this->getNumber($last);
+            $index = $this->generator->getNumber($i, $size - 1);
             $result[$keys[$index]] = $array[$keys[$index]];
-            $keys[$index] = $keys[$last];
+            $keys[$index] = $keys[$i];
         }
 
         return $result;
@@ -238,7 +204,7 @@ class SecureRandom
             throw new \InvalidArgumentException('Array must have at least one value');
         }
 
-        $result = array_slice($array, $this->getNumber(count($array) - 1), 1);
+        $result = array_slice($array, $this->generator->getNumber(0, count($array) - 1), 1);
 
         return current($result);
     }
@@ -311,7 +277,7 @@ class SecureRandom
         $result = [];
 
         for ($i = 0; $i < $length; $i++) {
-            $result[] = $values[$this->getNumber($size - 1)];
+            $result[] = $values[$this->generator->getNumber(0, $size - 1)];
         }
 
         return $result;

@@ -15,11 +15,18 @@ abstract class AbstractGenerator implements Generator
     public function getBytes($count)
     {
         $count = (int) $count;
+
+        if ($count === 0) {
+            return '';
+        }
+
         $bytes = $this->readBytes($count);
 
         if (!is_string($bytes)) {
             throw new GeneratorException('The random byte generator did not return a string');
-        } elseif (strlen($bytes) !== $count) {
+        }
+
+        if (strlen($bytes) !== $count) {
             throw new GeneratorException('The random byte generator returned an invalid number of bytes');
         }
 

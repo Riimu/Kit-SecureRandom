@@ -3,6 +3,7 @@
 namespace Riimu\Kit\SecureRandom;
 
 use PHPUnit\Framework\TestCase;
+use Riimu\Kit\SecureRandom\Generator\AbstractGenerator;
 use Riimu\Kit\SecureRandom\Generator\Generator;
 use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
 
@@ -79,7 +80,15 @@ class SecureRandomTest extends TestCase
 
     public function testZeroByteCount()
     {
-        $rng = $this->createWithList();
+        $generator = $this->getMockBuilder(AbstractGenerator::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['isSupported', 'readBytes'])
+            ->getMock();
+
+        $generator->expects($this->any())->method('isSupported')->willReturn(true);
+        $generator->expects($this->never())->method('readBytes');
+
+        $rng = new SecureRandom($generator);
         $this->assertSame('', $rng->getBytes(0));
     }
 
@@ -246,7 +255,7 @@ class SecureRandomTest extends TestCase
     public function testMinimalBytes()
     {
         $rng = $this->createWithList([0x0100, 0x80, 0xFF, 0x80]);
-        $this->assertSame([0x0100 => 0x0100, 0x80 => 0x80, 0xFF => 0xFF], $rng->getArray(range(0, 256), 3));
+        $this->assertSame([0x0100 => 0x0100, 0x81 => 0x81, 0x82 => 0x82], $rng->getArray(range(0, 256), 3));
     }
 
     public function testChoose()
@@ -261,11 +270,11 @@ class SecureRandomTest extends TestCase
     {
         $rng = $this->createWithList([0, 1, 0, 0]);
         $this->assertSame(
-            ['a' => '0', 'b' => '1', 'c' => '2'],
+            ['a' => '0', 'c' => '2', 'b' => '1'],
             $rng->shuffle(['a' => '0', 'b' => '1', 'c' => '2'])
         );
         $this->assertSame(
-            [0 => 'a', 2 => 'c', 1 => 'b'],
+            [0 => 'a', 1 => 'b', 2 => 'c'],
             $rng->shuffle(['a', 'b', 'c'])
         );
     }
