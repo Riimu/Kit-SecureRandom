@@ -220,10 +220,7 @@ class SecureRandom
             $last = $size - $i - 1;
             $index = $this->getNumber($last);
             $result[$keys[$index]] = $array[$keys[$index]];
-
-            if ($index < $last) {
-                $keys[$index] = $keys[$last];
-            }
+            $keys[$index] = $keys[$last];
         }
 
         return $result;
