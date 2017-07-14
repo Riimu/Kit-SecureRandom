@@ -7,7 +7,7 @@ use Riimu\Kit\SecureRandom\GeneratorException;
 /**
  * Interface for generators that can also generate random numbers.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2016, Riikka Kalliomäki
+ * @copyright Copyright (c) 2016-2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 interface NumberGenerator extends Generator

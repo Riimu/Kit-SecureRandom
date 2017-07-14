@@ -13,7 +13,7 @@ use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
  * as generation of integers, floats and randomizing arrays.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2014, Riikka Kalliomäki
+ * @copyright Copyright (c) 2014-2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 class SecureRandom

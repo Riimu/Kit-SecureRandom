@@ -7,7 +7,7 @@ use Riimu\Kit\SecureRandom\GeneratorException;
 /**
  * Abstract generator for handling byte generator errors.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2014, Riikka Kalliomäki
+ * @copyright Copyright (c) 2014-2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 abstract class AbstractGenerator implements Generator

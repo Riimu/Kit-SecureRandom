@@ -11,7 +11,7 @@ use Riimu\Kit\SecureRandom\GeneratorException;
  * random bytes. This class simply wraps that method for supported PHP versions.
  *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2014, Riikka Kalliomäki
+ * @copyright Copyright (c) 2015-2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 class Internal extends AbstractGenerator implements NumberGenerator

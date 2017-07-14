@@ -189,6 +189,6 @@ $rng = new \Riimu\Kit\SecureRandom\SecureRandom(
 
 ## Credits ##
 
-This library is copyright 2014 - 2016 to Riikka Kalliomäki.
+This library is Copyright (c) 2014-2017 Riikka Kalliomäki.
 
 See LICENSE for license and copying information.
