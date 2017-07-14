@@ -22,7 +22,7 @@ class SecureRandomTest extends TestCase
             ->setMethods(['getBytes', 'isSupported'])
             ->getMock();
 
-        $mock->expects($this->once())->method('isSupported')->will($this->returnValue(true));
+        $mock->expects($this->once())->method('isSupported')->willReturn(true);
         $mock->expects($this->any())->method('getBytes')->with($this->equalTo(1))->will(
             $this->returnCallback(function () use (& $count) {
                 return chr($count++ & 255);
@@ -50,7 +50,7 @@ class SecureRandomTest extends TestCase
     public function testInvalidGenerator()
     {
         $mock = $this->createMock(Generator::class);
-        $mock->expects($this->once())->method('isSupported')->will($this->returnValue(false));
+        $mock->expects($this->once())->method('isSupported')->willReturn(false);
 
         $this->expectException(GeneratorException::class);
         new SecureRandom($mock);
@@ -334,7 +334,7 @@ class SecureRandomTest extends TestCase
         $will = call_user_func_array([$with, 'withConsecutive'], array_map(function ($value) {
             return [$this->equalTo(strlen($value))];
         }, $strings));
-        $will->will(call_user_func_array([$this, 'onConsecutiveCalls'], $strings));
+        $will->will($this->onConsecutiveCalls(... $strings));
 
         return new SecureRandom($mock);
     }

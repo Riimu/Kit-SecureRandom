@@ -1,5 +1,18 @@
 # Changelog #
 
+## v1.3.0 (2017-07-14) ##
+
+  * The minimum required PHP version has been increased to 5.6
+  * Updated the test suite to work with PHPUnit 6
+  * Updated the travis build to test for PHP 7.1
+  * Updated to latest coding standards
+  * Added `SecureRandom::getRandom()` which returns a random float between 0 and
+    1 with more uniform distribution and always less than 1.
+  * Added `SecureRandom::getUuid()` which returns a random version 4 UUID.
+  * Added `Generator\ByteNumberGenerator` that wraps non `NumberGenerator`
+    generators for generating random numbers
+  * Improved the bundled autoloader slightly
+
 ## v1.2.0 (2016-05-12) ##
 
   * Added support for PHP's internal CSPRNG in php 7.0 (which is used by default)

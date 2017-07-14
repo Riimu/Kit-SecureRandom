@@ -97,11 +97,13 @@ $rng = new \Riimu\Kit\SecureRandom\SecureRandom();
 var_dump(base64_encode($rng->getBytes(32)));     // Returns a random byte string
 var_dump($rng->getInteger(100, 1000));           // Returns a random integer between 100 and 1000
 var_dump($rng->getFloat());                      // Returns a random float between 0 and 1
+var_dump($rng->getRandom());                     // Returns a random float between 0 and 1 (not including 1)
 var_dump($rng->getArray(range(0, 100), 5));      // Returns 5 randomly selected elements from the array
 var_dump($rng->choose(range(0, 100)));           // Returns one randomly chosen value from the array
 var_dump($rng->shuffle(range(0, 9)));            // Returns the array in random order
 var_dump($rng->getSequence('01', 32));           // Returns a random sequence of 0s and 1s with length of 32
 var_dump($rng->getSequence(['a', 'b', 'c'], 5)); // Returns an array with 5 elements randomly chosen from 'a', 'b', and 'c'
+var_dump($rng->getUuid());                       // Returns a random version UUID, e.g. '00056a74-036b-47c5-ab35-6f34a41a70ae'
 ```
 
 ### Random methods ###
@@ -116,6 +118,11 @@ The following methods are available in `SecureRandom` to retrieve randomness:
 
   * `getFloat()` returns a random float value between 0 and 1 (inclusive).
 
+  * `getRandom()` returns a random float value between 0 and 1 that has 52 bits
+    of precision and so that the returned value is always less than 1. In
+    comparison to `getFloat()`, the value distribution is more uniform and not
+    dependent on `PHP_INT_MAX`.
+
   * `getArray(array $array, $count)` returns a number of random elements from
     the given array. The elements are in random order, but the keys are
     preserved.
@@ -128,6 +135,11 @@ The following methods are available in `SecureRandom` to retrieve randomness:
   * `getSequence($choices, $length)` returns a random sequence of values or
     characters. The choices can be provided as a string or an array. The type of
     the return value depends on the type of choices.
+
+  * `getUuid()` returns a random version 4 [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+     UUIDs are unique identifiers that can be generated randomly, independently
+     and have very small likelihood of collision. And example of UUID could be
+    `00056a74-036b-47c5-ab35-6f34a41a70ae`.
 
 ### Notes about /dev/random ###
 

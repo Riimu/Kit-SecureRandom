@@ -6,9 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Riimu\Kit\SecureRandom\Generator\AbstractGenerator;
 use Riimu\Kit\SecureRandom\Generator\ByteNumberGenerator;
 use Riimu\Kit\SecureRandom\Generator\Generator;
-use Riimu\Kit\SecureRandom\Generator\Internal;
-use Riimu\Kit\SecureRandom\Generator\Mcrypt;
-use Riimu\Kit\SecureRandom\Generator\OpenSSL;
+use Riimu\Kit\SecureRandom\Generator\Internal as InternalGenerator;
+use Riimu\Kit\SecureRandom\Generator\Mcrypt as McryptGerator;
+use Riimu\Kit\SecureRandom\Generator\OpenSSL as OpenSSLGenerator;
 use Riimu\Kit\SecureRandom\Generator\RandomReader;
 
 /**
@@ -36,7 +36,7 @@ class GeneratorTest extends TestCase
             ->setMethods(['isSupported', 'readBytes'])
             ->getMock();
 
-        $mock->expects($this->once())->method('readBytes')->will($this->returnValue('aa'));
+        $mock->expects($this->once())->method('readBytes')->willReturn('aa');
 
         $this->expectException(GeneratorException::class);
         $mock->getBytes(6);
@@ -72,22 +72,30 @@ class GeneratorTest extends TestCase
 
     public function testMcrypt()
     {
-        $this->assertGeneratorWorks(new Mcrypt(true));
+        if (version_compare(PHP_VERSION, '7.1', '>=')) {
+            $this->markTestSkipped('The mcrypt extension has been deprecated');
+        }
+
+        $this->assertGeneratorWorks(new McryptGerator(true));
     }
 
     public function testBlockingMcrypt()
     {
-        $this->assertGeneratorWorks(new Mcrypt(false));
+        if (version_compare(PHP_VERSION, '7.1', '>=')) {
+            $this->markTestSkipped('The mcrypt extension has been deprecated');
+        }
+
+        $this->assertGeneratorWorks(new McryptGerator(false));
     }
 
     public function testOpenSSL()
     {
-        $this->assertGeneratorWorks(new OpenSSL());
+        $this->assertGeneratorWorks(new OpenSSLGenerator());
     }
 
     public function testOpenSSLFail()
     {
-        $generator = new OpenSSL();
+        $generator = new OpenSSLGenerator();
 
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
@@ -102,12 +110,12 @@ class GeneratorTest extends TestCase
 
     public function testInternal()
     {
-        $this->assertGeneratorWorks(new Internal());
+        $this->assertGeneratorWorks(new InternalGenerator());
     }
 
     public function testInternalNumberGenerator()
     {
-        $generator = new Internal();
+        $generator = new InternalGenerator();
 
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
@@ -119,7 +127,7 @@ class GeneratorTest extends TestCase
 
     public function testInternalFail()
     {
-        $generator = new Internal();
+        $generator = new InternalGenerator();
 
         if (!$generator->isSupported()) {
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
@@ -153,12 +161,7 @@ class GeneratorTest extends TestCase
             $this->markTestSkipped('Support for ' . get_class($generator) . ' is missing');
         }
 
-        if ($generator instanceof Mcrypt && version_compare(PHP_VERSION, '7.1', '>=')) {
-            $bytes = @$generator->getBytes(16);
-        } else {
-            $bytes = $generator->getBytes(16);
-        }
-
+        $bytes = $generator->getBytes(16);
         $this->assertSame(16, strlen($bytes));
     }
 }
