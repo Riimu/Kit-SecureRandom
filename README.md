@@ -26,8 +26,7 @@ on the underlying random byte generator. The library does not do any additional
 transformations on the bytes other than the normalization needed to generate
 even distributions of random numbers.
 
-The API documentation, which can be generated using Apigen, can be read online
-at: http://kit.riimu.net/api/securerandom/
+The API documentation is available at: http://kit.riimu.net/api/securerandom/
 
 [![Travis](https://img.shields.io/travis/Riimu/Kit-SecureRandom.svg?style=flat-square)](https://travis-ci.org/Riimu/Kit-SecureRandom)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/Riimu/Kit-SecureRandom.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-SecureRandom/)
