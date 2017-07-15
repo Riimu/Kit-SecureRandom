@@ -85,10 +85,6 @@ the library manually by downloading the [latest release](https://github.com/Riim
 and extracting the `src` folder to your project. You may then include the
 provided `src/autoload.php` file to load the library classes.
 
-Please note that using Composer will also automatically download the other
-required PHP libraries. If you install this library manually, you will also need
-to make those other required libraries available.
-
 ## Usage ##
 
 Usage of the library is very simple. Simply create an instance of the
