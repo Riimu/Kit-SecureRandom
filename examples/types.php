@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../src/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 $rng = new \Riimu\Kit\SecureRandom\SecureRandom();
 
 var_dump(base64_encode($rng->getBytes(32)));     // Returns a random byte string

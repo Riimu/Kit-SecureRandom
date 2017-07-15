@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../src/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $rng = new \Riimu\Kit\SecureRandom\SecureRandom();
 
@@ -9,7 +9,7 @@ $rng = new \Riimu\Kit\SecureRandom\SecureRandom();
  * http://boallen.com/random-numbers.html
  */
 
-header("Content-type: image/png");
+header('Content-type: image/png');
 
 $im = imagecreatetruecolor(512, 512);
 $white = imagecolorallocate($im, 255, 255, 255);

@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../src/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Creates SecureRandom with a blocking reader
 $rng = new \Riimu\Kit\SecureRandom\SecureRandom(
