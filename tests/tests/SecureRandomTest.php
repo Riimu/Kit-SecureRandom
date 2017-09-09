@@ -4,7 +4,9 @@ namespace Riimu\Kit\SecureRandom;
 
 use PHPUnit\Framework\TestCase;
 use Riimu\Kit\SecureRandom\Generator\AbstractGenerator;
+use Riimu\Kit\SecureRandom\Generator\ByteNumberGenerator;
 use Riimu\Kit\SecureRandom\Generator\Generator;
+use Riimu\Kit\SecureRandom\Generator\Internal;
 use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
 
 /**
@@ -18,6 +20,7 @@ class SecureRandomTest extends TestCase
     {
         $count = 0;
 
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
         $mock = $this->getMockBuilder(Generator::class)
             ->setMethods(['getBytes', 'isSupported'])
             ->getMock();
@@ -49,6 +52,7 @@ class SecureRandomTest extends TestCase
 
     public function testInvalidGenerator()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
         $mock = $this->createMock(Generator::class);
         $mock->expects($this->once())->method('isSupported')->willReturn(false);
 
@@ -80,6 +84,7 @@ class SecureRandomTest extends TestCase
 
     public function testZeroByteCount()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|AbstractGenerator $generator */
         $generator = $this->getMockBuilder(AbstractGenerator::class)
             ->disableOriginalConstructor()
             ->setMethods(['isSupported', 'readBytes'])
@@ -215,11 +220,12 @@ class SecureRandomTest extends TestCase
 
     public function testUsingNumberGenerator()
     {
-        $genarator = $this->createMock(NumberGenerator::class);
-        $genarator->method('isSupported')->willReturn(true);
-        $genarator->expects($this->once())->method('getNumber')->willReturn(7);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|NumberGenerator $generator */
+        $generator = $this->createMock(NumberGenerator::class);
+        $generator->method('isSupported')->willReturn(true);
+        $generator->expects($this->once())->method('getNumber')->willReturn(7);
 
-        $secure = new SecureRandom($genarator);
+        $secure = new SecureRandom($generator);
         $this->assertSame(7, $secure->getInteger(0, 100));
     }
 
@@ -305,6 +311,37 @@ class SecureRandomTest extends TestCase
         $this->assertSame('00112233-4455-4677-8899-aabbccddeeff', $rng->getUuid());
     }
 
+    public function testBitCounts()
+    {
+        $number = 0;
+
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $generator */
+        $generator = $this->createMock(Generator::class);
+        $generator->method('isSupported')->willReturn(true);
+        $generator->method('getBytes')->willReturnCallback(function ($count) use (& $number) {
+            $pad = 2 * (1 + (int) log($number, 256));
+            $bytes = hex2bin(sprintf("%0{$pad}x", $number));
+            $this->assertSame(strlen($bytes), $count);
+            return $bytes;
+        });
+
+        $random = new SecureRandom($generator);
+
+        for ($i = 1; $i < PHP_INT_SIZE * 8; $i++) {
+            $maximum = (1 << $i) < 0 ? PHP_INT_MAX : (1 << $i) - 1;
+            $number = mt_rand(1 << ($i - 1), $maximum);
+            $this->assertSame($number, $random->getInteger(0, $maximum));
+        }
+    }
+
+    public function testInvalidDifference()
+    {
+        $generator = new ByteNumberGenerator(new Internal());
+
+        $this->expectException(GeneratorException::class);
+        $generator->getNumber(~PHP_INT_MAX, PHP_INT_MAX);
+    }
+
     private function createWithList(array $list = [])
     {
         $strings = [];
@@ -328,6 +365,7 @@ class SecureRandomTest extends TestCase
             $strings[] = $string;
         }
 
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
         $mock = $this->createMock(Generator::class);
         $mock->method('isSupported')->willReturn(true);
         $with = $mock->expects($this->exactly(count($list)))->method('getBytes');

@@ -13,6 +13,12 @@ use Riimu\Kit\SecureRandom\GeneratorException;
  */
 class ByteNumberGenerator implements NumberGenerator
 {
+    /** @var string[] Formats for different numbers of bytes */
+    private static $byteFormats = ['Ca', 'na', 'Cb/na', 'Na', 'Cc/Na', 'nc/Na', 'Cd/nc/Na', 'Ja'];
+
+    /** @var int[] Default values for byte format values */
+    private static $byteDefaults = ['a' => 0, 'b' => 0, 'c' => 0, 'd' => 0];
+
     /** @var Generator The underlying byte generator */
     private $byteGenerator;
 
@@ -66,7 +72,13 @@ class ByteNumberGenerator implements NumberGenerator
             return $min;
         }
 
-        return $min + $this->getByteNumber($max - $min);
+        $difference = $max - $min;
+
+        if (!is_int($difference)) {
+            throw new GeneratorException('Too large difference between minimum and maximum');
+        }
+
+        return $min + $this->getByteNumber($difference);
     }
 
     /**
@@ -88,9 +100,21 @@ class ByteNumberGenerator implements NumberGenerator
         $bytes = (int) ceil($bits / 8);
 
         do {
-            $result = hexdec(bin2hex($this->byteGenerator->getBytes($bytes))) & $mask;
+            $result = $this->readByteNumber($bytes) & $mask;
         } while ($result > $limit);
 
         return $result;
+    }
+
+    /**
+     * Returns a number from byte generator based on given number of bytes.
+     * @param int $bytes The number of bytes to read
+     * @return int A random number read from the bytes of the byte generator
+     * @throws GeneratorException If the errors occurs generating the bytes for the number
+     */
+    private function readByteNumber($bytes)
+    {
+        $values = unpack(self::$byteFormats[$bytes - 1], $this->byteGenerator->getBytes($bytes)) + self::$byteDefaults;
+        return $values['a'] | $values['b'] << 16 | $values['c'] << 32 | $values['d'] << 48;
     }
 }

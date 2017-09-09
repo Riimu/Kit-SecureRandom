@@ -10,22 +10,26 @@ php:
 
 cache:
   directories:
-    - vendor
+    - build/.composer-cache
 
 before_install:
+  - export COMPOSER_CACHE_DIR="$(pwd)/build/.composer-cache"
   - export XDEBUG="/home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini"
   - is_hhvm () { [[ $TRAVIS_PHP_VERSION =~ ^hhvm ]]; }
   - is_hhvm || mv -v "$XDEBUG" "$XDEBUG.disabled"
 
 install:
-  - travis_retry composer update -a --no-interaction
-  - travis_retry wget https://scrutinizer-ci.com/ocular.phar
+  - mkdir -p build/php_codesniffer build/php-cs-fixer build/ocular
+  - is_hhvm || composer require --no-suggest --no-progress -n -a -d build/php-cs-fixer "friendsofphp/php-cs-fixer:^2.5"
+  - composer require --no-suggest --no-progress -n -a -d build/php_codesniffer "squizlabs/php_codesniffer:^3.0"
+  - composer require --no-suggest --no-progress -n -a -d build/ocular "scrutinizer/ocular:^1.4"
+  - composer update --no-suggest --no-progress -na
 
 script:
-  - vendor/bin/phpcs --standard=PSR2 src tests
-  - vendor/bin/php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
+  - build/php_codesniffer/vendor/bin/phpcs -p --standard=PSR2 src tests
+  - is_hhvm || build/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
   - if is_hhvm; then echo "xdebug.enable = On" >> /etc/hhvm/php.ini; else mv -v "$XDEBUG.disabled" "$XDEBUG"; fi
-  - vendor/bin/phpunit --coverage-clover=coverage.clover --coverage-text
+  - vendor/bin/phpunit --coverage-clover=build/coverage.clover --coverage-text
 
 after_script:
-  - is_hhvm || php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+  - is_hhvm || build/ocular/vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.clover

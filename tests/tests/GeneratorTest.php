@@ -20,6 +20,7 @@ class GeneratorTest extends TestCase
 {
     public function testInvalidTypeOfBytes()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|AbstractGenerator $mock */
         $mock = $this->getMockBuilder(AbstractGenerator::class)
             ->setMethods(['isSupported', 'readBytes'])
             ->getMock();
@@ -32,6 +33,7 @@ class GeneratorTest extends TestCase
 
     public function testInvalidNumberOfBytes()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|AbstractGenerator $mock */
         $mock = $this->getMockBuilder(AbstractGenerator::class)
             ->setMethods(['isSupported', 'readBytes'])
             ->getMock();
@@ -139,7 +141,9 @@ class GeneratorTest extends TestCase
 
     public function testByteNumberGeneratorInvalidLimits()
     {
-        $generator = new ByteNumberGenerator($this->createMock(Generator::class));
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
+        $mock = $this->createMock(Generator::class);
+        $generator = new ByteNumberGenerator($mock);
 
         $this->expectException(\InvalidArgumentException::class);
         $generator->getNumber(1, 0);
@@ -147,6 +151,7 @@ class GeneratorTest extends TestCase
 
     public function testByteNumberGeneratorSupportPass()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $generator */
         $generator = $this->createMock(Generator::class);
         $generator->expects($this->once())->method('isSupported')->willReturn(true);
 

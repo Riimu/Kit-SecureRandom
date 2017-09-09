@@ -138,14 +138,15 @@ class SecureRandom
      */
     public function getRandom()
     {
-        $bytes = $this->generator->getBytes(7);
+        $bytes = unpack('C7', $this->generator->getBytes(7));
+        $lastByte = array_pop($bytes) & 0b00011111;
         $result = 0.0;
 
-        for ($i = 0; $i < 6; $i++) {
-            $result = (ord($bytes[$i]) + $result) / 256;
+        foreach ($bytes as $byte) {
+            $result = ($byte + $result) / 256;
         }
 
-        $result = ((ord($bytes[6]) & 0b00011111) + $result) / 32;
+        $result = ($lastByte + $result) / 32;
 
         return $result;
     }
@@ -289,9 +290,7 @@ class SecureRandom
      */
     public function getUuid()
     {
-        $integers = array_map(function ($bytes) {
-            return hexdec(bin2hex($bytes));
-        }, str_split($this->generator->getBytes(16), 2));
+        $integers = array_values(unpack('n8', $this->generator->getBytes(16)));
 
         $integers[3] &= 0x0FFF;
         $integers[4] = $integers[4] & 0x3FFF | 0x8000;
