@@ -13,8 +13,11 @@ use Riimu\Kit\SecureRandom\GeneratorException;
  */
 class ByteNumberGenerator implements NumberGenerator
 {
-    /** @var \Closure[] Closures for reading bytes */
-    private $byteReaders;
+    /** @var string[] Formats for different numbers of bytes */
+    const BYTE_FORMATS = ['Ca', 'na', 'Cb/na', 'Na', 'Cc/Na', 'nc/Na', 'Cd/nc/Na', 'Ja'];
+
+    /** @var int[] Default values for byte format values */
+    const BYTE_DEFAULTS = ['a' => 0, 'b' => 0, 'c' => 0, 'd' => 0];
 
     /** @var Generator The underlying byte generator */
     private $byteGenerator;
@@ -25,7 +28,6 @@ class ByteNumberGenerator implements NumberGenerator
      */
     public function __construct(Generator $generator)
     {
-        $this->initializeByteReaders();
         $this->byteGenerator = $generator;
     }
 
@@ -95,53 +97,24 @@ class ByteNumberGenerator implements NumberGenerator
             $bits++;
         }
 
-        $readBytes = $this->byteReaders[(int) ceil($bits / 8)];
+        $bytes = (int) ceil($bits / 8);
 
         do {
-            $result = $readBytes() & $mask;
+            $result = $this->readByteNumber($bytes) & $mask;
         } while ($result > $limit);
 
         return $result;
     }
 
     /**
-     * Initializes the callbacks used to generate different numbers of bytes.
+     * Returns a number from byte generator based on given number of bytes.
+     * @param int $bytes The number of bytes to read
+     * @return int A random number read from the bytes of the byte generator
+     * @throws GeneratorException If the errors occurs generating the bytes for the number
      */
-    private function initializeByteReaders()
+    private function readByteNumber($bytes)
     {
-        $this->byteReaders = [
-            1 => function () {
-                $bytes = unpack('C', $this->byteGenerator->getBytes(1));
-                return $bytes[1];
-            },
-            2 => function () {
-                $bytes = unpack('n', $this->byteGenerator->getBytes(2));
-                return $bytes[1];
-            },
-            3 => function () {
-                $bytes = unpack('Ca/nb', $this->byteGenerator->getBytes(3));
-                return $bytes['a'] << 16 | $bytes['b'];
-            },
-            4 => function () {
-                $bytes = unpack('N', $this->byteGenerator->getBytes(4));
-                return $bytes[1];
-            },
-            5 => function () {
-                $bytes = unpack('Ca/Nb', $this->byteGenerator->getBytes(5));
-                return $bytes['a'] << 32 | $bytes['b'];
-            },
-            6 => function () {
-                $bytes = unpack('na/Nb', $this->byteGenerator->getBytes(6));
-                return $bytes['a'] << 32 | $bytes['b'];
-            },
-            7 => function () {
-                $bytes = unpack('Ca/nb/Nc', $this->byteGenerator->getBytes(7));
-                return $bytes['a'] << 48 | $bytes['b'] << 32 | $bytes['c'];
-            },
-            8 => function () {
-                $bytes = unpack('J', $this->byteGenerator->getBytes(8));
-                return $bytes[1];
-            },
-        ];
+        $values = unpack(self::BYTE_FORMATS[$bytes - 1], $this->byteGenerator->getBytes($bytes)) + self::BYTE_DEFAULTS;
+        return $values['a'] | $values['b'] << 16 | $values['c'] << 32 | $values['d'] << 48;
     }
 }
