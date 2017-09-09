@@ -14,10 +14,10 @@ use Riimu\Kit\SecureRandom\GeneratorException;
 class ByteNumberGenerator implements NumberGenerator
 {
     /** @var string[] Formats for different numbers of bytes */
-    const BYTE_FORMATS = ['Ca', 'na', 'Cb/na', 'Na', 'Cc/Na', 'nc/Na', 'Cd/nc/Na', 'Ja'];
+    private static $byteFormats = ['Ca', 'na', 'Cb/na', 'Na', 'Cc/Na', 'nc/Na', 'Cd/nc/Na', 'Ja'];
 
     /** @var int[] Default values for byte format values */
-    const BYTE_DEFAULTS = ['a' => 0, 'b' => 0, 'c' => 0, 'd' => 0];
+    private static $byteDefaults = ['a' => 0, 'b' => 0, 'c' => 0, 'd' => 0];
 
     /** @var Generator The underlying byte generator */
     private $byteGenerator;
@@ -114,7 +114,7 @@ class ByteNumberGenerator implements NumberGenerator
      */
     private function readByteNumber($bytes)
     {
-        $values = unpack(self::BYTE_FORMATS[$bytes - 1], $this->byteGenerator->getBytes($bytes)) + self::BYTE_DEFAULTS;
+        $values = unpack(self::$byteFormats[$bytes - 1], $this->byteGenerator->getBytes($bytes)) + self::$byteDefaults;
         return $values['a'] | $values['b'] << 16 | $values['c'] << 32 | $values['d'] << 48;
     }
 }
