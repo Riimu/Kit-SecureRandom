@@ -334,7 +334,7 @@ class SecureRandomTest extends TestCase
         $generator = new ByteNumberGenerator(new Internal());
 
         $this->expectException(GeneratorException::class);
-        $generator->getNumber(PHP_INT_MIN, PHP_INT_MAX);
+        $generator->getNumber(~PHP_INT_MAX, PHP_INT_MAX);
     }
 
     private function createWithList(array $list = [])
