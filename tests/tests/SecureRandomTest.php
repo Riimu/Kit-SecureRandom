@@ -20,6 +20,7 @@ class SecureRandomTest extends TestCase
     {
         $count = 0;
 
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
         $mock = $this->getMockBuilder(Generator::class)
             ->setMethods(['getBytes', 'isSupported'])
             ->getMock();
@@ -51,6 +52,7 @@ class SecureRandomTest extends TestCase
 
     public function testInvalidGenerator()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
         $mock = $this->createMock(Generator::class);
         $mock->expects($this->once())->method('isSupported')->willReturn(false);
 
@@ -82,6 +84,7 @@ class SecureRandomTest extends TestCase
 
     public function testZeroByteCount()
     {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|AbstractGenerator $generator */
         $generator = $this->getMockBuilder(AbstractGenerator::class)
             ->disableOriginalConstructor()
             ->setMethods(['isSupported', 'readBytes'])
@@ -217,11 +220,12 @@ class SecureRandomTest extends TestCase
 
     public function testUsingNumberGenerator()
     {
-        $genarator = $this->createMock(NumberGenerator::class);
-        $genarator->method('isSupported')->willReturn(true);
-        $genarator->expects($this->once())->method('getNumber')->willReturn(7);
+        /** @var \PHPUnit_Framework_MockObject_MockObject|NumberGenerator $generator */
+        $generator = $this->createMock(NumberGenerator::class);
+        $generator->method('isSupported')->willReturn(true);
+        $generator->expects($this->once())->method('getNumber')->willReturn(7);
 
-        $secure = new SecureRandom($genarator);
+        $secure = new SecureRandom($generator);
         $this->assertSame(7, $secure->getInteger(0, 100));
     }
 
@@ -311,6 +315,7 @@ class SecureRandomTest extends TestCase
     {
         $number = 0;
 
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $generator */
         $generator = $this->createMock(Generator::class);
         $generator->method('isSupported')->willReturn(true);
         $generator->method('getBytes')->willReturnCallback(function ($count) use (& $number) {
@@ -360,6 +365,7 @@ class SecureRandomTest extends TestCase
             $strings[] = $string;
         }
 
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Generator $mock */
         $mock = $this->createMock(Generator::class);
         $mock->method('isSupported')->willReturn(true);
         $with = $mock->expects($this->exactly(count($list)))->method('getBytes');

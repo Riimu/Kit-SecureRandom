@@ -6,8 +6,8 @@
     if the difference between minimum and maximum is not an integer
   * Rely on `unpack()` rather than `hexdec(bin2hex())` due to being less likely
     to be affected by timing vulnerabilities.
-  * Require phpunit, phpcs and php-cs-fixer as external dependencies in the
-    travis build instead of including them as dev dependencies
+  * Require phpcs and php-cs-fixer as external dependencies in the travis build
+    instead of including them as dev dependencies
 
 ## v1.3.0 (2017-07-14) ##
 

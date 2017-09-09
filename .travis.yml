@@ -19,10 +19,9 @@ before_install:
   - is_hhvm || mv -v "$XDEBUG" "$XDEBUG.disabled"
 
 install:
-  - mkdir -p build/php_codesniffer build/php-cs-fixer build/phpunit build/ocular
+  - mkdir -p build/php_codesniffer build/php-cs-fixer build/ocular
   - is_hhvm || composer require --no-suggest --no-progress -n -a -d build/php-cs-fixer "friendsofphp/php-cs-fixer:^2.5"
   - composer require --no-suggest --no-progress -n -a -d build/php_codesniffer "squizlabs/php_codesniffer:^3.0"
-  - composer require --no-suggest --no-progress -n -a -d build/phpunit "phpunit/phpunit:^6.3||^5.7"
   - composer require --no-suggest --no-progress -n -a -d build/ocular "scrutinizer/ocular:^1.4"
   - composer update --no-suggest --no-progress -na
 
@@ -30,7 +29,7 @@ script:
   - build/php_codesniffer/vendor/bin/phpcs -p --standard=PSR2 src tests
   - is_hhvm || build/php-cs-fixer/vendor/bin/php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
   - if is_hhvm; then echo "xdebug.enable = On" >> /etc/hhvm/php.ini; else mv -v "$XDEBUG.disabled" "$XDEBUG"; fi
-  - build/phpunit/vendor/bin/phpunit --coverage-clover=build/coverage.clover --coverage-text
+  - vendor/bin/phpunit --coverage-clover=build/coverage.clover --coverage-text
 
 after_script:
   - is_hhvm || build/ocular/vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage.clover
