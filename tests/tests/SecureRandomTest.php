@@ -4,7 +4,9 @@ namespace Riimu\Kit\SecureRandom;
 
 use PHPUnit\Framework\TestCase;
 use Riimu\Kit\SecureRandom\Generator\AbstractGenerator;
+use Riimu\Kit\SecureRandom\Generator\ByteNumberGenerator;
 use Riimu\Kit\SecureRandom\Generator\Generator;
+use Riimu\Kit\SecureRandom\Generator\Internal;
 use Riimu\Kit\SecureRandom\Generator\NumberGenerator;
 
 /**
@@ -303,6 +305,36 @@ class SecureRandomTest extends TestCase
         $this->assertSame('00000000-0000-4000-8000-000000000000', $rng->getUuid());
         $this->assertSame('ffffffff-ffff-4fff-bfff-ffffffffffff', $rng->getUuid());
         $this->assertSame('00112233-4455-4677-8899-aabbccddeeff', $rng->getUuid());
+    }
+
+    public function testBitCounts()
+    {
+        $number = 0;
+
+        $generator = $this->createMock(Generator::class);
+        $generator->method('isSupported')->willReturn(true);
+        $generator->method('getBytes')->willReturnCallback(function ($count) use (& $number) {
+            $pad = 2 * (1 + (int) log($number, 256));
+            $bytes = hex2bin(sprintf("%0{$pad}x", $number));
+            $this->assertSame(strlen($bytes), $count);
+            return $bytes;
+        });
+
+        $random = new SecureRandom($generator);
+
+        for ($i = 1; $i < PHP_INT_SIZE * 8; $i++) {
+            $maximum = (1 << $i) < 0 ? PHP_INT_MAX : (1 << $i) - 1;
+            $number = mt_rand(1 << ($i - 1), $maximum);
+            $this->assertSame($number, $random->getInteger(0, $maximum));
+        }
+    }
+
+    public function testInvalidDifference()
+    {
+        $generator = new ByteNumberGenerator(new Internal());
+
+        $this->expectException(GeneratorException::class);
+        $generator->getNumber(PHP_INT_MIN, PHP_INT_MAX);
     }
 
     private function createWithList(array $list = [])

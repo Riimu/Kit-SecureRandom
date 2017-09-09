@@ -13,6 +13,9 @@ use Riimu\Kit\SecureRandom\GeneratorException;
  */
 class ByteNumberGenerator implements NumberGenerator
 {
+    /** @var \Closure[] Closures for reading bytes */
+    private $byteReaders;
+
     /** @var Generator The underlying byte generator */
     private $byteGenerator;
 
@@ -22,6 +25,7 @@ class ByteNumberGenerator implements NumberGenerator
      */
     public function __construct(Generator $generator)
     {
+        $this->initializeByteReaders();
         $this->byteGenerator = $generator;
     }
 
@@ -66,7 +70,13 @@ class ByteNumberGenerator implements NumberGenerator
             return $min;
         }
 
-        return $min + $this->getByteNumber($max - $min);
+        $difference = $max - $min;
+
+        if (!is_int($difference)) {
+            throw new GeneratorException('Too large difference between minimum and maximum');
+        }
+
+        return $min + $this->getByteNumber($difference);
     }
 
     /**
@@ -85,12 +95,53 @@ class ByteNumberGenerator implements NumberGenerator
             $bits++;
         }
 
-        $bytes = (int) ceil($bits / 8);
+        $readBytes = $this->byteReaders[(int) ceil($bits / 8)];
 
         do {
-            $result = hexdec(bin2hex($this->byteGenerator->getBytes($bytes))) & $mask;
+            $result = $readBytes() & $mask;
         } while ($result > $limit);
 
         return $result;
+    }
+
+    /**
+     * Initializes the callbacks used to generate different numbers of bytes.
+     */
+    private function initializeByteReaders()
+    {
+        $this->byteReaders = [
+            1 => function () {
+                $bytes = unpack('C', $this->byteGenerator->getBytes(1));
+                return $bytes[1];
+            },
+            2 => function () {
+                $bytes = unpack('n', $this->byteGenerator->getBytes(2));
+                return $bytes[1];
+            },
+            3 => function () {
+                $bytes = unpack('Ca/nb', $this->byteGenerator->getBytes(3));
+                return $bytes['a'] << 16 | $bytes['b'];
+            },
+            4 => function () {
+                $bytes = unpack('N', $this->byteGenerator->getBytes(4));
+                return $bytes[1];
+            },
+            5 => function () {
+                $bytes = unpack('Ca/Nb', $this->byteGenerator->getBytes(5));
+                return $bytes['a'] << 32 | $bytes['b'];
+            },
+            6 => function () {
+                $bytes = unpack('na/Nb', $this->byteGenerator->getBytes(6));
+                return $bytes['a'] << 32 | $bytes['b'];
+            },
+            7 => function () {
+                $bytes = unpack('Ca/nb/Nc', $this->byteGenerator->getBytes(7));
+                return $bytes['a'] << 48 | $bytes['b'] << 32 | $bytes['c'];
+            },
+            8 => function () {
+                $bytes = unpack('J', $this->byteGenerator->getBytes(8));
+                return $bytes[1];
+            },
+        ];
     }
 }
